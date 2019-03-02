@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "778701566429",
+    "firebase_url": "https://stealapeak.firebaseio.com",
+    "project_id": "stealapeak",
+    "storage_bucket": "stealapeak.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:778701566429:android:430c227af3f71080",
+        "android_client_info": {
+          "package_name": "com.ekdorn.stealapeak"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "778701566429-btrvjo1u0m4q641r11dhq88ank83lnt0.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.ekdorn.stealapeak",
+            "certificate_hash": "88ee0fa8f38cfceb5936dee73543190f53d7c4c8"
+          }
+        },
+        {
+          "client_id": "778701566429-3sn3u9169rnbco09cehr5hhb5efv2vn1.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBAsoHaVF4N2R3CFgSbYNgVDDceLW6O1Qw"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "778701566429-3sn3u9169rnbco09cehr5hhb5efv2vn1.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">StealAPeak</string>
+    <string name="title_activity_steal_apeak">StealAPeak</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="nav_header_title">Android Studio</string>
+    <string name="nav_header_subtitle">android.studio@android.com</string>
+    <string name="nav_header_desc">Navigation header</string>
+    <string name="action_settings">Settings</string>
+
+    <string name="phone_number">Your phone number</string>
+    <string name="button_text">Log in!</string>
+</resources>
