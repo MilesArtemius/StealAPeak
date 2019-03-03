@@ -1,5 +1,6 @@
 package com.ekdorn.stealapeak;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -17,17 +18,36 @@ import android.view.MenuItem;
 
 import com.google.firebase.auth.FirebaseAuth;
 
+import java.lang.ref.WeakReference;
+
 public class StealAPeak extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
+    private static final int loginActivity = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
         if (FirebaseAuth.getInstance().getCurrentUser() == null) {
             Intent intent = new Intent(this, LoginActivity.class);
-            startActivityForResult(intent, 42);
+            startActivityForResult(intent, loginActivity);
+        } else {
+            postCreate();
         }
+    }
 
-        super.onCreate(savedInstanceState);
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == loginActivity) {
+            if (resultCode == RESULT_CANCELED) {
+                this.finish();
+            } else {
+                postCreate();
+            }
+        }
+    }
+
+    private void postCreate() {
         setContentView(R.layout.activity_steal_a_peak);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -49,15 +69,14 @@ public class StealAPeak extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
-    }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == 42) {
-            if (resultCode == RESULT_CANCELED) {
-                this.finish();
+
+        Console.getTokenByPhone("+16505553434", new Console.OnLoaded() {
+            @Override
+            public void onGot(User user) {
+
             }
-        }
+        });
     }
 
     @Override
@@ -115,5 +134,11 @@ public class StealAPeak extends AppCompatActivity
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+
+
+    public static void updateUserList(Context context) {
+
     }
 }

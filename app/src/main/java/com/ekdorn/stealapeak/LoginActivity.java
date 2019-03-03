@@ -1,5 +1,6 @@
 package com.ekdorn.stealapeak;
 
+import android.app.Dialog;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AlertDialog;
@@ -61,7 +62,7 @@ public class LoginActivity extends AppCompatActivity {
 
                         @Override
                         public void onCodeSent(String verificationId, PhoneAuthProvider.ForceResendingToken token) {
-                            ConfirmationDialog cd = new ConfirmationDialog(LoginActivity.this.getApplicationContext(), token.toString(), verificationId);
+                            ConfirmationDialog cd = new ConfirmationDialog(LoginActivity.this, verificationId);
                             cd.show();
                         }
                     };
@@ -104,15 +105,16 @@ public class LoginActivity extends AppCompatActivity {
 
 
     private class ConfirmationDialog extends AlertDialog {
-        private ConfirmationDialog(@NonNull Context context, final String token, final String id) {
+        private ConfirmationDialog(@NonNull Context context, final String id) {
             super(context);
 
             this.setCancelable(false);
             this.setCanceledOnTouchOutside(false);
 
-            this.setMessage("Insert your 6-digit code from SMS:");
+            this.setMessage("Insert your 6-digit code from SMS :");
 
             final EditText code = new EditText(context);
+            code.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
             code.setInputType(InputType.TYPE_CLASS_NUMBER);
             code.addTextChangedListener(new TextWatcher() {
                 @Override
@@ -122,17 +124,13 @@ public class LoginActivity extends AppCompatActivity {
                 @Override
                 public void afterTextChanged(Editable editable) {
                     if (editable.length() == 6) {
-                        if (token.equals(editable.toString())) {
-                            PhoneAuthCredential credential = PhoneAuthProvider.getCredential(id, token);
-                            signInWithPhoneAuthCredential(credential);
-                            ConfirmationDialog.this.dismiss();
-                        } else {
-                            code.setError("Still wrong...");
-                        }
+                        PhoneAuthCredential credential = PhoneAuthProvider.getCredential(id, editable.toString());
+                        signInWithPhoneAuthCredential(credential);
+                        ConfirmationDialog.this.dismiss();
                     }
                 }
             });
-            this.setContentView(code, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+            this.setView(code);
         }
     }
 }
