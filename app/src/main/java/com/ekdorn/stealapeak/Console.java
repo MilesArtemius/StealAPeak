@@ -43,7 +43,7 @@ public class Console {
      * });
      */
     @SuppressWarnings("unchecked")
-    public static void getTokenByPhone(final String phone, final OnLoaded loaded) {
+    public static void getUserByPhone(final String phone, final OnLoaded loaded) {
         FirebaseFunctions.getInstance()
                 .getHttpsCallable(FUNC_NAME)
                 .call(phone)
@@ -58,9 +58,9 @@ public class Console {
                         if (task.isSuccessful()) {
                             String name = task.getResult().get(NAME_FIELD);
                             String token = task.getResult().get(TOKEN_FIELD);
-                            loaded.onGot(new User((name == null) ? phone : name, (token == null) ? "token" : name));
+                            loaded.onGot(new User((name == null) ? phone : name, (token == null) ? "token" : name), true);
                         } else {
-                            loaded.onGot(null);
+                            loaded.onGot(null, false);
                         }
                     }
                 });
@@ -70,10 +70,10 @@ public class Console {
         Map<String, User> users = PrefManager.get(context).getAllUsers();
 
         for (final Map.Entry<String, User> usr: users.entrySet()) {
-            getTokenByPhone(usr.getKey(), new OnLoaded() {
+            getUserByPhone(usr.getKey(), new OnLoaded() {
                 @Override
-                public void onGot(User user) {
-                    if (user == null) {
+                public void onGot(User user, boolean successful) {
+                    if (!successful) {
                         PrefManager.get(context).deleteUser(usr.getKey());
                     } else {
                         PrefManager.get(context).setUser(usr.getKey(), user);
@@ -104,6 +104,6 @@ public class Console {
 
 
     public interface OnLoaded {
-        void onGot(User user);
+        void onGot(User user, boolean successful);
     }
 }

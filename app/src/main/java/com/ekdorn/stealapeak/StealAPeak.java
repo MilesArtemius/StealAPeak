@@ -1,8 +1,10 @@
 package com.ekdorn.stealapeak;
 
+import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.v4.app.FragmentManager;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -37,6 +39,7 @@ public class StealAPeak extends AppCompatActivity
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == loginActivity) {
             if (resultCode == RESULT_CANCELED) {
                 this.finish();
@@ -47,7 +50,7 @@ public class StealAPeak extends AppCompatActivity
     }
 
     private void postCreate() {
-        setContentView(R.layout.activity_steal_a_peak);
+        setContentView(R.layout.outer_activity_stealapeak);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -73,6 +76,9 @@ public class StealAPeak extends AppCompatActivity
 
         Console.reloadToken(null, this);
         Console.refreshAllContacts(this);
+
+        FragmentManager manager = this.getSupportFragmentManager();
+        manager.beginTransaction().add(R.id.user_search_frame, new UserSearchFragment()).commit();
     }
 
     @Override

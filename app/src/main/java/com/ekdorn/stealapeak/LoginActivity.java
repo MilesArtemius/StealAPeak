@@ -1,6 +1,5 @@
 package com.ekdorn.stealapeak;
 
-import android.app.Dialog;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AlertDialog;
@@ -34,7 +33,7 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.login);
+        setContentView(R.layout.inner_login);
 
         final Button loginButton = (Button) findViewById(R.id.button);
         final EditText number = (EditText) findViewById(R.id.phone);

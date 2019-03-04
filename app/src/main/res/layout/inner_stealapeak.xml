@@ -7,7 +7,7 @@
     android:orientation="vertical"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context=".StealAPeak"
-    tools:showIn="@layout/app_bar_steal_a_peak"
+    tools:showIn="@layout/outer_appbar_stealapeak"
     android:weightSum="1">
 
     <FrameLayout
@@ -26,6 +26,7 @@
         android:layout_weight="0.2" />
 
     <FrameLayout
+        android:id="@+id/user_search_frame"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_weight="0.2">
