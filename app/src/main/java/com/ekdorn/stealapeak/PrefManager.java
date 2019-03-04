@@ -5,7 +5,6 @@ import android.content.SharedPreferences;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 public class PrefManager {
     private static final String contacts_prefs = "CONTACTS";
@@ -51,7 +50,35 @@ public class PrefManager {
         return new User(name, token);
     }
 
-    public void setUser(String phone, User user) {
 
+
+    public static final String MY_TOKEN = "token";
+
+    public void setUser(String phone, User user) {
+        namesPrefs.edit().putString(phone, user.getName()).apply();
+        tokensPrefs.edit().putString(phone, user.getToken()).apply();
+    }
+
+    public void deleteUser(String phone) {
+        namesPrefs.edit().remove(phone).apply();
+        tokensPrefs.edit().remove(phone).apply();
+    }
+
+    public void logOut() {
+        tokensPrefs.edit().clear().apply();
+        namesPrefs.edit().clear().apply();
+
+        String lastToken = settingsPrefs.getString(MY_TOKEN, "");
+        settingsPrefs.edit().clear().putString(MY_TOKEN, lastToken).apply();
+    }
+
+
+
+    public void setToken(String token, String pref) {
+        settingsPrefs.edit().putString(pref, token).apply();
+    }
+
+    public String getToken(String pref) {
+        return settingsPrefs.getString(pref, null);
     }
 }

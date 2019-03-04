@@ -25,6 +25,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
 import com.google.firebase.auth.PhoneAuthCredential;
 import com.google.firebase.auth.PhoneAuthProvider;
+import com.google.firebase.auth.UserProfileChangeRequest;
 
 import java.util.concurrent.TimeUnit;
 
@@ -35,7 +36,7 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.login);
 
-        Button loginButton = (Button) findViewById(R.id.button);
+        final Button loginButton = (Button) findViewById(R.id.button);
         final EditText number = (EditText) findViewById(R.id.phone);
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -64,6 +65,7 @@ public class LoginActivity extends AppCompatActivity {
                         public void onCodeSent(String verificationId, PhoneAuthProvider.ForceResendingToken token) {
                             ConfirmationDialog cd = new ConfirmationDialog(LoginActivity.this, verificationId);
                             cd.show();
+                            loginButton.setEnabled(false);
                         }
                     };
 
@@ -87,10 +89,22 @@ public class LoginActivity extends AppCompatActivity {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
-                            LoginActivity.this.setResult(RESULT_OK);
-                            finish();
+                            UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
+                                    .setDisplayName(FirebaseAuth.getInstance().getCurrentUser().getPhoneNumber())
+                                    .build();
+
+                            FirebaseAuth.getInstance().getCurrentUser().updateProfile(profileUpdates)
+                                    .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<Void> task) {
+                                            LoginActivity.this.setResult(RESULT_OK);
+                                            finish();
+                                        }
+                                    });
                         } else {
                             Toast.makeText(LoginActivity.this, "Sorry, not logged in...", Toast.LENGTH_SHORT).show();
+                            Button loginButton = (Button) findViewById(R.id.button);
+                            loginButton.setEnabled(true);
                         }
                     }
                 });

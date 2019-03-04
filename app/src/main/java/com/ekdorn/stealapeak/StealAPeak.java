@@ -1,11 +1,8 @@
 package com.ekdorn.stealapeak;
 
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -15,10 +12,12 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
 
-import java.lang.ref.WeakReference;
+import java.util.Map;
 
 public class StealAPeak extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -52,15 +51,6 @@ public class StealAPeak extends AppCompatActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
-
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
@@ -68,15 +58,21 @@ public class StealAPeak extends AppCompatActivity
         toggle.syncState();
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        View hView =  navigationView.getHeaderView(0);
+        TextView nav_name = (TextView)hView.findViewById(R.id.nameView);
+        nav_name.setText(FirebaseAuth.getInstance().getCurrentUser().getDisplayName());
+        TextView nav_phone = (TextView)hView.findViewById(R.id.phoneView);
+        nav_phone.setText(FirebaseAuth.getInstance().getCurrentUser().getPhoneNumber());
+
+        for (final Map.Entry<String, User> entry: PrefManager.get(this).getAllUsers().entrySet()) {
+            MenuItem item = navigationView.getMenu().add(R.id.main_group, Menu.NONE, Menu.NONE, entry.getValue().getName());
+            item.setTitleCondensed(entry.getKey());
+            //item
+        }
         navigationView.setNavigationItemSelectedListener(this);
 
-
-        Console.getTokenByPhone("+16505553434", new Console.OnLoaded() {
-            @Override
-            public void onGot(User user) {
-
-            }
-        });
+        Console.reloadToken(null, this);
+        Console.refreshAllContacts(this);
     }
 
     @Override
@@ -104,8 +100,15 @@ public class StealAPeak extends AppCompatActivity
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+        switch (id) {
+            case R.id.action_settings:
+                return true;
+            case R.id.action_logout:
+                PrefManager.get(this).logOut();
+                FirebaseAuth.getInstance().signOut();
+
+                closeOptionsMenu();
+                StealAPeak.this.recreate();
         }
 
         return super.onOptionsItemSelected(item);
@@ -114,31 +117,10 @@ public class StealAPeak extends AppCompatActivity
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-        // Handle navigation view item clicks here.
-        int id = item.getItemId();
-
-        if (id == R.id.nav_camera) {
-            // Handle the camera action
-        } else if (id == R.id.nav_gallery) {
-
-        } else if (id == R.id.nav_slideshow) {
-
-        } else if (id == R.id.nav_manage) {
-
-        } else if (id == R.id.nav_share) {
-
-        } else if (id == R.id.nav_send) {
-
-        }
+        Toast.makeText(this, item.getTitleCondensed(), Toast.LENGTH_SHORT).show();
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
-    }
-
-
-
-    public static void updateUserList(Context context) {
-
     }
 }
