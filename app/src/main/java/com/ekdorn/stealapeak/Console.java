@@ -81,11 +81,9 @@ public class Console {
         }
     }
 
-    public static void reloadToken(String token, final Context context) {
-        final String tok = (token == null) ? PrefManager.get(context).getToken(PrefManager.MY_TOKEN) : token;
-
+    public static void reloadToken(final String token, final Context context) {
         UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
-                .setPhotoUri(Uri.parse(tok))
+                .setPhotoUri(Uri.parse(token))
                 .build();
 
         FirebaseAuth.getInstance().getCurrentUser().updateProfile(profileUpdates)
@@ -93,7 +91,7 @@ public class Console {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
                         if (!task.isSuccessful()) {
-                            Console.reloadToken(tok, context);
+                            Console.reloadToken(token, context);
                         }
                     }
                 });
@@ -105,3 +103,27 @@ public class Console {
         void onGot(User user, boolean successful);
     }
 }
+
+
+/**
+ * exports.sendNewTripNotification = functions.database.ref('/{uid}/shared_trips/').onWrite(event=>{
+ *     const uuid = event.params.uid;
+ *
+ *     console.log('User to send notification', uuid);
+ *
+ *     var ref = admin.database().ref(`Users/${uuid}/token`);
+ *     return ref.once("value", function(snapshot){
+ *          const payload = {
+ *               notification: {
+ *                   title: 'You have been invited to a trip.',
+ *                   body: 'Tap here to check it out!'
+ *               }
+ *          };
+ *
+ *          admin.messaging().sendToDevice(snapshot.val(), payload)
+ *
+ *     }, function (errorObject) {
+ *         console.log("The read failed: " + errorObject.code);
+ *     });
+ * })
+ */

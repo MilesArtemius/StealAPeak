@@ -15,16 +15,21 @@ import android.widget.TableRow;
 import android.widget.TextView;
 
 public class UserSearchFragment extends Fragment {
+    EditText phone;
+    TableRow onSearchedContainer;
+    LinearLayout userBox;
+    Button findButton;
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         super.onSaveInstanceState(savedInstanceState);
         final View root = inflater.inflate(R.layout.inner_fragment_stealapeak, container, false);
 
-        final EditText phone = (EditText) root.findViewById(R.id.phone);
-        final TableRow onSearchedContainer = (TableRow) root.findViewById(R.id.on_searched_container);
-        final LinearLayout userBox = (LinearLayout) root.findViewById(R.id.user_box);
-        final Button findButton = (Button) root.findViewById(R.id.find_button);
+        phone = (EditText) root.findViewById(R.id.phone);
+        onSearchedContainer = (TableRow) root.findViewById(R.id.on_searched_container);
+        userBox = (LinearLayout) root.findViewById(R.id.user_box);
+        findButton = (Button) root.findViewById(R.id.find_button);
 
         findButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -37,13 +42,7 @@ public class UserSearchFragment extends Fragment {
                     @Override
                     public void onGot(final User user, boolean successful) {
                         if (successful) {
-                            findButton.setEnabled(true);
-                            phone.setEnabled(true);
-
-                            phone.setVisibility(View.GONE);
-                            findButton.setVisibility(View.GONE);
-                            onSearchedContainer.setVisibility(View.VISIBLE);
-                            userBox.setVisibility(View.VISIBLE);
+                            swotch(true);
 
                             ImageView userAvater = (ImageView) root.findViewById(R.id.user_avatar);
                             TextView userName = (TextView) root.findViewById(R.id.user_name);
@@ -57,7 +56,7 @@ public class UserSearchFragment extends Fragment {
                             dialogButton.setOnClickListener(new View.OnClickListener() {
                                 @Override
                                 public void onClick(View v) {
-
+                                    swotch(false);
                                 }
                             });
 
@@ -66,13 +65,12 @@ public class UserSearchFragment extends Fragment {
                                 @Override
                                 public void onClick(View v) {
                                     ContactsManager.get().addContact(user, number, UserSearchFragment.this.getActivity());
+                                    swotch(false);
                                 }
                             });
                         } else {
-                            findButton.setEnabled(true);
-                            phone.setEnabled(true);
+                            swotch(true);
 
-                            phone.setText("");
                             if (number.equals("")) {
                                 phone.setError("No number on input :/");
                             //} else if... {
@@ -87,5 +85,19 @@ public class UserSearchFragment extends Fragment {
         });
 
         return root;
+    }
+
+    private void swotch(boolean enabled) {
+        findButton.setEnabled(enabled);
+        phone.setEnabled(enabled);
+
+        int startVIsibiluty = enabled ? View.GONE : View.VISIBLE;
+        int endVIsibiluty = enabled ? View.VISIBLE : View.GONE;
+        phone.setVisibility(startVIsibiluty);
+        findButton.setVisibility(startVIsibiluty);
+        onSearchedContainer.setVisibility(endVIsibiluty);
+        userBox.setVisibility(endVIsibiluty);
+
+        phone.setText("");
     }
 }

@@ -50,8 +50,6 @@ public class MessagingService extends FirebaseMessagingService {
 
         if (FirebaseAuth.getInstance().getCurrentUser() != null) {
             Console.reloadToken(token, this);
-        } else {
-            PrefManager.get(this).setToken(token, PrefManager.MY_TOKEN);
         }
     }
 }

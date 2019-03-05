@@ -46,17 +46,12 @@ public class ContactsManager implements NavigationView.OnNavigationItemSelectedL
 
     public void addItem(final String phone) {
         if (this.contactsList != null) {
-            if (findByPhone(phone) == -1) {
-                MenuItem item = this.contactsList.add(R.id.main_group, Menu.NONE, Menu.FIRST, phone);
-                item.setTitleCondensed(phone);
-                if (/* notification is on screen */false) {
-                    ((CheckBox) item.getActionView()).setChecked(true);
-                }
-                item.setActionView(new CheckBox(contextHolder.get()));
-                selected.added();
-            } else {
-                Toast.makeText(contextHolder.get(), "Already in contacts!", Toast.LENGTH_SHORT).show();
+            MenuItem item = this.contactsList.add(R.id.main_group, Menu.NONE, Menu.FIRST, phone);
+            item.setTitleCondensed(phone);
+            if (/* notification is on screen */false) {
+                ((CheckBox) item.getActionView()).setChecked(true);
             }
+            item.setActionView(new CheckBox(contextHolder.get()));
         } else {
             Log.e("TAG", "called outside app" );
         }
@@ -80,8 +75,13 @@ public class ContactsManager implements NavigationView.OnNavigationItemSelectedL
 
 
     public void addContact(User user, String phone, Context context) {
-        PrefManager.get(context).setUser(phone, user);
-        addItem(phone);
+        if (!PrefManager.get(context).isUser(phone)) {
+            PrefManager.get(context).setUser(phone, user);
+            addItem(phone);
+            selected.added();
+        } else {
+            Toast.makeText(contextHolder.get(), "Already in contacts!", Toast.LENGTH_SHORT).show();
+        }
     }
 
     public void removeContact(String phone, Context context) {

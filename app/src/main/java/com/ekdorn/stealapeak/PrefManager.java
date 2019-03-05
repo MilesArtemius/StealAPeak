@@ -52,8 +52,6 @@ public class PrefManager {
 
 
 
-    public static final String MY_TOKEN = "token";
-
     public void setUser(String phone, User user) {
         namesPrefs.edit().putString(phone, user.getName()).apply();
         tokensPrefs.edit().putString(phone, user.getToken()).apply();
@@ -64,21 +62,23 @@ public class PrefManager {
         tokensPrefs.edit().remove(phone).apply();
     }
 
+    public boolean isUser(String phone) {
+        return tokensPrefs.contains(phone);
+    }
+
     public void logOut() {
         tokensPrefs.edit().clear().apply();
         namesPrefs.edit().clear().apply();
-
-        String lastToken = settingsPrefs.getString(MY_TOKEN, "");
-        settingsPrefs.edit().clear().putString(MY_TOKEN, lastToken).apply();
+        settingsPrefs.edit().clear().apply();
     }
 
 
 
-    public void setToken(String token, String pref) {
+    /*public void setToken(String token, String pref) {
         settingsPrefs.edit().putString(pref, token).apply();
     }
 
     public String getToken(String pref) {
         return settingsPrefs.getString(pref, null);
-    }
+    }*/
 }
