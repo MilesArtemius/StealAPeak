@@ -19,10 +19,10 @@ import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
 
+import java.lang.ref.WeakReference;
 import java.util.Map;
 
-public class StealAPeak extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
+public class StealAPeak extends AppCompatActivity {
     private static final int loginActivity = 1;
 
     @Override
@@ -67,12 +67,26 @@ public class StealAPeak extends AppCompatActivity
         TextView nav_phone = (TextView)hView.findViewById(R.id.phoneView);
         nav_phone.setText(FirebaseAuth.getInstance().getCurrentUser().getPhoneNumber());
 
+        ContactsManager.create(navigationView.getMenu(), new ContactsManager.OnSelected() {
+            @Override
+            public void selected() {
+                DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+                drawer.closeDrawer(GravityCompat.START);
+            }
+            @Override
+            public void added() {
+                DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+                drawer.openDrawer(GravityCompat.START);
+            }
+        }, new WeakReference<StealAPeak>(this));
+        navigationView.setNavigationItemSelectedListener(ContactsManager.get());
+
         for (final Map.Entry<String, User> entry: PrefManager.get(this).getAllUsers().entrySet()) {
-            MenuItem item = navigationView.getMenu().add(R.id.main_group, Menu.NONE, Menu.NONE, entry.getValue().getName());
-            item.setTitleCondensed(entry.getKey());
+            //MenuItem item = navigationView.getMenu().add(R.id.main_group, Menu.NONE, Menu.NONE, entry.getValue().getName());
+            //item.setTitleCondensed(entry.getKey());
             //item
+            ContactsManager.get().addItem(entry.getKey());
         }
-        navigationView.setNavigationItemSelectedListener(this);
 
         Console.reloadToken(null, this);
         Console.refreshAllContacts(this);
@@ -118,15 +132,5 @@ public class StealAPeak extends AppCompatActivity
         }
 
         return super.onOptionsItemSelected(item);
-    }
-
-    @SuppressWarnings("StatementWithEmptyBody")
-    @Override
-    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-        Toast.makeText(this, item.getTitleCondensed(), Toast.LENGTH_SHORT).show();
-
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        drawer.closeDrawer(GravityCompat.START);
-        return true;
     }
 }

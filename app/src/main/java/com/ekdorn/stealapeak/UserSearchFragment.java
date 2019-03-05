@@ -3,6 +3,7 @@ package com.ekdorn.stealapeak;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,8 +24,8 @@ public class UserSearchFragment extends Fragment {
         final EditText phone = (EditText) root.findViewById(R.id.phone);
         final TableRow onSearchedContainer = (TableRow) root.findViewById(R.id.on_searched_container);
         final LinearLayout userBox = (LinearLayout) root.findViewById(R.id.user_box);
-
         final Button findButton = (Button) root.findViewById(R.id.find_button);
+
         findButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -34,7 +35,7 @@ public class UserSearchFragment extends Fragment {
 
                 Console.getUserByPhone(number, new Console.OnLoaded() {
                     @Override
-                    public void onGot(User user, boolean successful) {
+                    public void onGot(final User user, boolean successful) {
                         if (successful) {
                             findButton.setEnabled(true);
                             phone.setEnabled(true);
@@ -64,7 +65,7 @@ public class UserSearchFragment extends Fragment {
                             contactsButton.setOnClickListener(new View.OnClickListener() {
                                 @Override
                                 public void onClick(View v) {
-
+                                    ContactsManager.get().addContact(user, number, UserSearchFragment.this.getActivity());
                                 }
                             });
                         } else {

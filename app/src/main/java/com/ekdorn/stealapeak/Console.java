@@ -73,9 +73,7 @@ public class Console {
             getUserByPhone(usr.getKey(), new OnLoaded() {
                 @Override
                 public void onGot(User user, boolean successful) {
-                    if (!successful) {
-                        PrefManager.get(context).deleteUser(usr.getKey());
-                    } else {
+                    if (successful) {
                         PrefManager.get(context).setUser(usr.getKey(), user);
                     }
                 }

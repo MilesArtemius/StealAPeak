@@ -55,7 +55,7 @@
         android:id="@+id/find_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Button" />
+        android:text="Find!" />
 
     <TableRow android:visibility="gone"
         android:id="@+id/on_searched_container" >
@@ -63,7 +63,7 @@
             android:id="@+id/dialog_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Button"
+            android:text="Start dialog!"
             android:layout_weight="0.5"/>
 
         <Button
@@ -71,7 +71,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="0.5"
-            android:text="Button"/>
+            android:text="Add to contacts!"/>
     </TableRow>
 
 </TableLayout>
