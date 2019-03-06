@@ -6,6 +6,7 @@ import android.support.design.widget.NavigationView;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.CheckBox;
 import android.widget.Switch;
 import android.widget.Toast;
@@ -48,10 +49,11 @@ public class ContactsManager implements NavigationView.OnNavigationItemSelectedL
         if (this.contactsList != null) {
             MenuItem item = this.contactsList.add(R.id.main_group, Menu.NONE, Menu.FIRST, phone);
             item.setTitleCondensed(phone);
-            if (/* notification is on screen */false) {
+            item.setActionView(new CheckBox(contextHolder.get()));
+            item.getActionView().setClickable(false);
+            if (PrefManager.get(contextHolder.get()).getUser(phone).isNotificationOpened()) {
                 ((CheckBox) item.getActionView()).setChecked(true);
             }
-            item.setActionView(new CheckBox(contextHolder.get()));
         } else {
             Log.e("TAG", "called outside app" );
         }
@@ -63,7 +65,7 @@ public class ContactsManager implements NavigationView.OnNavigationItemSelectedL
             if (itemN != -1) {
                 MenuItem item = this.contactsList.getItem(itemN);
                 if (((CheckBox) item.getActionView()).isChecked()) {
-                    // remove notification;
+                    NotificationsManager.dismissDialogNotification(contextHolder.get(), phone);
                 }
                 this.contactsList.removeItem(item.getItemId());
             }
@@ -106,16 +108,18 @@ public class ContactsManager implements NavigationView.OnNavigationItemSelectedL
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         if (item.getGroupId() == R.id.main_group) {
+            String phone = item.getTitleCondensed().toString();
+
             if (((Switch) this.contactsList.findItem(R.id.app_bar_switch).getActionView().findViewById(R.id.switcher)).isChecked()) {
-                removeContact(item.getTitleCondensed().toString(), contextHolder.get());
+                removeContact(phone, contextHolder.get());
             } else {
                 ((CheckBox) item.getActionView()).toggle();
 
                 if (((CheckBox) item.getActionView()).isChecked()) {
-                    // open notification;
+                    NotificationsManager.addToDialogNotification(contextHolder.get(), phone, null);
                     this.selected.selected();
                 } else {
-                    // close notification;
+                    NotificationsManager.dismissDialogNotification(contextHolder.get(), phone);
                 }
             }
         }

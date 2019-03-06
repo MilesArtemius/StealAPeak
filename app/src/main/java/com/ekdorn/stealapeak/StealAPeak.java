@@ -1,6 +1,5 @@
 package com.ekdorn.stealapeak;
 
-import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -15,7 +14,6 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -67,7 +65,7 @@ public class StealAPeak extends AppCompatActivity {
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         View hView =  navigationView.getHeaderView(0);
         TextView nav_name = (TextView)hView.findViewById(R.id.nameView);
-        nav_name.setText(FirebaseAuth.getInstance().getCurrentUser().getDisplayName());
+        nav_name.setText(FirebaseAuth.getInstance().getCurrentUser().getPhotoUrl().getScheme());
         TextView nav_phone = (TextView)hView.findViewById(R.id.phoneView);
         nav_phone.setText(FirebaseAuth.getInstance().getCurrentUser().getPhoneNumber());
 
@@ -96,11 +94,11 @@ public class StealAPeak extends AppCompatActivity {
                     @Override
                     public void onComplete(@NonNull Task<InstanceIdResult> task) {
                         if (task.isSuccessful()) {
-                            Console.reloadToken(task.getResult().getToken(), StealAPeak.this);
+                            Console.reloadToken(task.getResult().getToken());
                         }
                     }
                 });
-        Console.refreshAllContacts(this);
+        Console.refreshAllContacts(this); // not always!
 
         FragmentManager manager = this.getSupportFragmentManager();
         manager.beginTransaction().add(R.id.user_search_frame, new UserSearchFragment()).commit();

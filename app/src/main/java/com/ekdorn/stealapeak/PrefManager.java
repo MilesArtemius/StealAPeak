@@ -7,17 +7,21 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class PrefManager {
-    private static final String contacts_prefs = "CONTACTS";
+    private static final String names_prefs = "NAMES";
+    private static final String keys_prefs = "KEYS";
+    private static final String keys_notifications = "NOTIFICATIONS";
     private static final String settings_prefs = "SETTINGS";
 
     private static PrefManager prefManager;
     private SharedPreferences namesPrefs;
-    private SharedPreferences tokensPrefs;
+    private SharedPreferences keysPrefs;
+    private SharedPreferences notificationsPrefs;
     private SharedPreferences settingsPrefs;
 
     private PrefManager(Context context) {
-        namesPrefs = context.getSharedPreferences(contacts_prefs, Context.MODE_PRIVATE);
-        tokensPrefs = context.getSharedPreferences(contacts_prefs, Context.MODE_PRIVATE);
+        namesPrefs = context.getSharedPreferences(names_prefs, Context.MODE_PRIVATE);
+        keysPrefs = context.getSharedPreferences(keys_prefs, Context.MODE_PRIVATE);
+        notificationsPrefs = context.getSharedPreferences(keys_notifications, Context.MODE_PRIVATE);
         settingsPrefs = context.getSharedPreferences(settings_prefs, Context.MODE_PRIVATE);
     }
 
@@ -34,42 +38,48 @@ public class PrefManager {
 
     public Map<String, User> getAllUsers() {
         Map<String, ?> namesMap = namesPrefs.getAll();
-        Map<String, ?> tokensMap = tokensPrefs.getAll();
+        Map<String, ?> tokensMap = keysPrefs.getAll();
+        Map<String, ?> notificationsMap = notificationsPrefs.getAll();
         Map<String, User> userMap = new HashMap<>();
 
         for (Map.Entry entry: namesMap.entrySet()) {
-            userMap.put((String) entry.getKey(), new User((String) entry.getValue(), (String) tokensMap.get(entry.getKey())));
+            userMap.put((String) entry.getKey(),
+                    new User((String) entry.getValue(), (String) tokensMap.get(entry.getKey()), (Boolean) notificationsMap.get(entry.getKey())));
         }
 
         return userMap;
     }
 
-    public User getUserByPhone(String phone) {
+    public User getUser(String phone) {
         String name = namesPrefs.getString(phone, null);
-        String token = tokensPrefs.getString(phone, null);
-        return new User(name, token);
+        String token = keysPrefs.getString(phone, null);
+        boolean isOpened = notificationsPrefs.getBoolean(phone, false);
+        return new User(name, token, isOpened);
     }
 
 
 
     public void setUser(String phone, User user) {
         namesPrefs.edit().putString(phone, user.getName()).apply();
-        tokensPrefs.edit().putString(phone, user.getToken()).apply();
+        keysPrefs.edit().putString(phone, user.getKey()).apply();
+        notificationsPrefs.edit().putBoolean(phone, user.isNotificationOpened()).apply();
     }
 
     public void deleteUser(String phone) {
         namesPrefs.edit().remove(phone).apply();
-        tokensPrefs.edit().remove(phone).apply();
+        keysPrefs.edit().remove(phone).apply();
+        notificationsPrefs.edit().remove(phone).apply();
     }
 
     public boolean isUser(String phone) {
-        return tokensPrefs.contains(phone);
+        return keysPrefs.contains(phone);
     }
 
     public void logOut() {
-        tokensPrefs.edit().clear().apply();
+        keysPrefs.edit().clear().apply();
         namesPrefs.edit().clear().apply();
         settingsPrefs.edit().clear().apply();
+        notificationsPrefs.edit().clear().apply();
     }
 
 
@@ -78,7 +88,7 @@ public class PrefManager {
         settingsPrefs.edit().putString(pref, token).apply();
     }
 
-    public String getToken(String pref) {
+    public String getKey(String pref) {
         return settingsPrefs.getString(pref, null);
     }*/
 }

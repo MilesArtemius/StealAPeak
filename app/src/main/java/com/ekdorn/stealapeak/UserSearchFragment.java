@@ -42,7 +42,7 @@ public class UserSearchFragment extends Fragment {
                     @Override
                     public void onGot(final User user, boolean successful) {
                         if (successful) {
-                            swotch(true);
+                            swotch(false);
 
                             ImageView userAvater = (ImageView) root.findViewById(R.id.user_avatar);
                             TextView userName = (TextView) root.findViewById(R.id.user_name);
@@ -56,7 +56,8 @@ public class UserSearchFragment extends Fragment {
                             dialogButton.setOnClickListener(new View.OnClickListener() {
                                 @Override
                                 public void onClick(View v) {
-                                    swotch(false);
+                                    Console.sendMessage(number, "test", "DATA");
+                                    swotch(true);
                                 }
                             });
 
@@ -65,7 +66,7 @@ public class UserSearchFragment extends Fragment {
                                 @Override
                                 public void onClick(View v) {
                                     ContactsManager.get().addContact(user, number, UserSearchFragment.this.getActivity());
-                                    swotch(false);
+                                    swotch(true);
                                 }
                             });
                         } else {
@@ -91,8 +92,8 @@ public class UserSearchFragment extends Fragment {
         findButton.setEnabled(enabled);
         phone.setEnabled(enabled);
 
-        int startVIsibiluty = enabled ? View.GONE : View.VISIBLE;
-        int endVIsibiluty = enabled ? View.VISIBLE : View.GONE;
+        int startVIsibiluty = enabled ? View.VISIBLE : View.GONE;
+        int endVIsibiluty = enabled ? View.GONE : View.VISIBLE;
         phone.setVisibility(startVIsibiluty);
         findButton.setVisibility(startVIsibiluty);
         onSearchedContainer.setVisibility(endVIsibiluty);

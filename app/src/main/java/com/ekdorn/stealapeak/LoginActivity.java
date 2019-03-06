@@ -1,6 +1,7 @@
 package com.ekdorn.stealapeak;
 
 import android.content.Context;
+import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -89,7 +90,8 @@ public class LoginActivity extends AppCompatActivity {
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
                             UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
-                                    .setDisplayName(FirebaseAuth.getInstance().getCurrentUser().getPhoneNumber())
+                                    .setPhotoUri(Uri.parse(FirebaseAuth.getInstance().getCurrentUser().getPhoneNumber() +
+                                            ":" /*+ KEY */))
                                     .build();
 
                             FirebaseAuth.getInstance().getCurrentUser().updateProfile(profileUpdates)
