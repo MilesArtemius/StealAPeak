@@ -1,30 +1,38 @@
 package com.ekdorn.stealapeak;
 
-import android.content.Context;
+import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProviders;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.CheckBox;
 import android.widget.Switch;
 import android.widget.Toast;
 
+import com.ekdorn.stealapeak.database.Contact;
+import com.ekdorn.stealapeak.database.ContactViewModel;
+
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.ref.WeakReference;
+import java.util.List;
 
 public class ContactsManager implements NavigationView.OnNavigationItemSelectedListener {
     private static ContactsManager manager;
     private Menu contactsList;
     private WeakReference<StealAPeak> contextHolder;
+    private ContactViewModel CVM;
     private OnSelected selected;
 
     private ContactsManager(@Nullable Menu menu, @Nullable OnSelected selected, WeakReference<StealAPeak> holder) {
         if (menu != null) this.contactsList = menu;
         if (selected != null) this.selected = selected;
-        if (holder != null) this.contextHolder = holder;
+        if (holder != null) {
+            this.contextHolder = holder;
+            initData(holder.get());
+        }
     }
 
     public static ContactsManager create(Menu menu, OnSelected selected, WeakReference<StealAPeak> holder) {
@@ -45,13 +53,27 @@ public class ContactsManager implements NavigationView.OnNavigationItemSelectedL
         }
     }
 
+    private void initData(StealAPeak sap) {
+        CVM = ViewModelProviders.of(sap).get(ContactViewModel.class);
+        CVM.getContactsList().observe(sap, new Observer<List<Contact>>() {
+            @Override
+            public void onChanged(@Nullable List<Contact> contacts) {
+                if ((ContactsManager.this.contactsList != null) && (contacts != null))
+                    ContactsManager.this.contactsList.removeGroup(R.id.main_group);
+                for (int i = 0; i < contacts.size(); i++) {
+                    addItem(contacts.get(i).getPhone());
+                }
+            }
+        });
+    }
+
     public void addItem(final String phone) {
         if (this.contactsList != null) {
             MenuItem item = this.contactsList.add(R.id.main_group, Menu.NONE, Menu.FIRST, phone);
             item.setTitleCondensed(phone);
             item.setActionView(new CheckBox(contextHolder.get()));
             item.getActionView().setClickable(false);
-            if (PrefManager.get(contextHolder.get()).getUser(phone).isNotificationOpened()) {
+            if (CVM.getContact(phone).isActive()) {
                 ((CheckBox) item.getActionView()).setChecked(true);
             }
         } else {
@@ -59,48 +81,22 @@ public class ContactsManager implements NavigationView.OnNavigationItemSelectedL
         }
     }
 
-    private void removeItem(String phone) {
-        if (this.contactsList != null) {
-            int itemN = findByPhone(phone);
-            if (itemN != -1) {
-                MenuItem item = this.contactsList.getItem(itemN);
-                if (((CheckBox) item.getActionView()).isChecked()) {
-                    NotificationsManager.dismissDialogNotification(contextHolder.get(), phone);
-                }
-                this.contactsList.removeItem(item.getItemId());
-            }
-        } else {
-            Log.e("TAG", "called outside app" );
-        }
-    }
 
 
-
-    public void addContact(User user, String phone, Context context) {
-        if (!PrefManager.get(context).isUser(phone)) {
-            PrefManager.get(context).setUser(phone, user);
-            addItem(phone);
+    public void addContact(Contact contact, String phone) {
+        if (!CVM.isContact(phone)) {
+            CVM.setContact(contact);
             selected.added();
         } else {
             Toast.makeText(contextHolder.get(), "Already in contacts!", Toast.LENGTH_SHORT).show();
         }
     }
 
-    public void removeContact(String phone, Context context) {
-        PrefManager.get(context).deleteUser(phone);
-        removeItem(phone);
-    }
-
-
-
-    private int findByPhone(String phone) {
-        for (int i = 0; i < this.contactsList.size(); i++) {
-            MenuItem item = this.contactsList.getItem(i);
-            if (item.getTitleCondensed().equals(phone)) {
-                return i;
-            }
+    public void removeContact(String phone) {
+        if (CVM.getContact(phone).isActive()) {
+            NotificationsManager.dismissDialogNotification(contextHolder.get(), phone);
         }
-        return -1;
+        CVM.deleteContact(phone);
     }
 
 
@@ -111,12 +107,12 @@ public class ContactsManager implements NavigationView.OnNavigationItemSelectedL
             String phone = item.getTitleCondensed().toString();
 
             if (((Switch) this.contactsList.findItem(R.id.app_bar_switch).getActionView().findViewById(R.id.switcher)).isChecked()) {
-                removeContact(phone, contextHolder.get());
+                removeContact(phone);
             } else {
                 ((CheckBox) item.getActionView()).toggle();
 
                 if (((CheckBox) item.getActionView()).isChecked()) {
-                    NotificationsManager.addToDialogNotification(contextHolder.get(), phone, null);
+                    NotificationsManager.activeNotification(contextHolder.get(), phone, null);
                     this.selected.selected();
                 } else {
                     NotificationsManager.dismissDialogNotification(contextHolder.get(), phone);

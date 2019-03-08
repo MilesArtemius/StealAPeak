@@ -3,7 +3,6 @@ package com.ekdorn.stealapeak;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,6 +12,9 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
+
+import com.ekdorn.stealapeak.database.Contact;
+import com.google.firebase.auth.FirebaseAuth;
 
 public class UserSearchFragment extends Fragment {
     EditText phone;
@@ -35,12 +37,16 @@ public class UserSearchFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 final String number = phone.getText().toString();
+                if (number.matches(LoginActivity.PHONE_MASK)) {
+                    phone.setError("Doesn't looks like phone number...");
+                    return;
+                }
                 findButton.setEnabled(false);
                 phone.setEnabled(false);
 
                 Console.getUserByPhone(number, new Console.OnLoaded() {
                     @Override
-                    public void onGot(final User user, boolean successful) {
+                    public void onGot(final Contact contact, boolean successful) {
                         if (successful) {
                             swotch(false);
 
@@ -49,7 +55,7 @@ public class UserSearchFragment extends Fragment {
                             TextView userPhone = (TextView) root.findViewById(R.id.user_phone);
 
                             //userAvater
-                            userName.setText(user.getName());
+                            userName.setText(contact.getName());
                             userPhone.setText(number);
 
                             final Button dialogButton = (Button) root.findViewById(R.id.dialog_button);
@@ -65,7 +71,7 @@ public class UserSearchFragment extends Fragment {
                             contactsButton.setOnClickListener(new View.OnClickListener() {
                                 @Override
                                 public void onClick(View v) {
-                                    ContactsManager.get().addContact(user, number, UserSearchFragment.this.getActivity());
+                                    ContactsManager.get().addContact(contact, number);
                                     swotch(true);
                                 }
                             });

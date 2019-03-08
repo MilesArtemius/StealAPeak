@@ -1,10 +1,11 @@
 package com.ekdorn.stealapeak;
 
 import android.content.Context;
-import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
+import com.ekdorn.stealapeak.database.Contact;
+import com.ekdorn.stealapeak.database.AppDatabase;
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -14,10 +15,11 @@ import com.google.firebase.functions.FirebaseFunctions;
 import com.google.firebase.functions.HttpsCallableResult;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class Console {
-    private static final String FUNC_NAME    = "getUserByPhone";
+    private static final String FUNC_GUBP_NAME    = "getUserByPhone";
     private static final String NAME_FIELD   = "name";
     private static final String TOKEN_FIELD  = "key";
 
@@ -27,7 +29,7 @@ public class Console {
      *         const phoneNumber = data.toString();
      *
      *         return admin.auth().getUserByPhoneNumber(phoneNumber).then(function (userRecord) {
-     *             console.log("User data shared of: ", phoneNumber + " of " + userRecord.displayName + " and " + userRecord.photoURL);
+     *             console.log("Contact data shared of: ", phoneNumber + " of " + userRecord.displayName + " and " + userRecord.photoURL);
      *             const ret = userRecord.photoURL.split(":");
      *             return {"name": ret[0], "key": ret[1]};
      *
@@ -44,7 +46,7 @@ public class Console {
     @SuppressWarnings("unchecked")
     public static void getUserByPhone(final String phone, final OnLoaded loaded) {
         FirebaseFunctions.getInstance()
-                .getHttpsCallable(FUNC_NAME)
+                .getHttpsCallable(FUNC_GUBP_NAME)
                 .call(phone)
                 .continueWith(new Continuation<HttpsCallableResult, Map<String, String>>() {
                     @Override
@@ -57,7 +59,7 @@ public class Console {
                         if (task.isSuccessful()) {
                             String name = task.getResult().get(NAME_FIELD);
                             String key = task.getResult().get(TOKEN_FIELD);
-                            loaded.onGot(new User((name == null) ? phone : name, (key == null) ? "key" : key, false), true);
+                            loaded.onGot(new Contact(phone, (name == null) ? phone : name, (key == null) ? TOKEN_FIELD : key, false), true);
                         } else {
                             loaded.onGot(null, false);
                         }
@@ -66,19 +68,21 @@ public class Console {
     }
 
     public static void refreshAllContacts(final Context context) {
-        Map<String, User> users = PrefManager.get(context).getAllUsers();
+        List<Contact> contacts = AppDatabase.getDatabase(context).contactDao().getAllUsers().getValue();
 
-        for (final Map.Entry<String, User> usr: users.entrySet()) {
-            final boolean isNotificationOpened = usr.getValue().isNotificationOpened();
-            getUserByPhone(usr.getKey(), new OnLoaded() {
-                @Override
-                public void onGot(User user, boolean successful) {
-                    if (successful) {
-                        user.setNotificationOpened(isNotificationOpened);
-                        PrefManager.get(context).setUser(usr.getKey(), user);
+        if (contacts != null) {
+            for (final Contact contact : contacts) {
+                final boolean isNotificationOpened = contact.isActive();
+                getUserByPhone(contact.getPhone(), new OnLoaded() {
+                    @Override
+                    public void onGot(Contact contact, boolean successful) {
+                        if (successful) {
+                            contact.setActive(isNotificationOpened);
+                            AppDatabase.getDatabase(context).contactDao().updateUser(contact);
+                        }
                     }
-                }
-            });
+                });
+            }
         }
     }
 
@@ -97,6 +101,11 @@ public class Console {
                     }
                 });
     }
+
+    private static final String FUNC_SM_NAME = "sendMessage";
+    private static final String PHONE_FIELD  = "phone";
+    private static final String TEXT_FIELD   = "text";
+    private static final String TYPE_FIELD   = "type";
 
     /**
      * exports.sendMessage = functions.https.onCall((data, context)  => {
@@ -136,12 +145,12 @@ public class Console {
      */
     public static void sendMessage(String phone, String text, String type) {
         Map<String, String> data = new HashMap<>();
-        data.put("phone", phone);
-        data.put("text", text);
-        data.put("type", type);
+        data.put(PHONE_FIELD, phone);
+        data.put(TEXT_FIELD, text);
+        data.put(TYPE_FIELD, type);
 
         FirebaseFunctions.getInstance()
-                .getHttpsCallable("sendMessage")
+                .getHttpsCallable(FUNC_SM_NAME)
                 .call(data)
                 .continueWith(new Continuation<HttpsCallableResult, Boolean>() {
                     @Override
@@ -161,6 +170,6 @@ public class Console {
 
 
     public interface OnLoaded {
-        void onGot(User user, boolean successful);
+        void onGot(Contact contact, boolean successful);
     }
 }

@@ -13,7 +13,7 @@ public class MessagingService extends FirebaseMessagingService {
             Log.e("TAG", "onMessageReceived: received! " + remoteMessage.getData());
             if (remoteMessage.getData().get("type").equals("DATA")) {
                 String phone = remoteMessage.getData().get("sender");
-                NotificationsManager.addToDialogNotification(this, phone, remoteMessage.getData());
+                NotificationsManager.activeNotification(this, phone, remoteMessage.getData());
             } else {
 
             }

@@ -3,6 +3,8 @@ package com.ekdorn.stealapeak;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import com.ekdorn.stealapeak.database.Contact;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -36,33 +38,33 @@ public class PrefManager {
 
 
 
-    public Map<String, User> getAllUsers() {
+    public Map<String, Contact> getAllUsers() {
         Map<String, ?> namesMap = namesPrefs.getAll();
         Map<String, ?> tokensMap = keysPrefs.getAll();
         Map<String, ?> notificationsMap = notificationsPrefs.getAll();
-        Map<String, User> userMap = new HashMap<>();
+        Map<String, Contact> userMap = new HashMap<>();
 
         for (Map.Entry entry: namesMap.entrySet()) {
             userMap.put((String) entry.getKey(),
-                    new User((String) entry.getValue(), (String) tokensMap.get(entry.getKey()), (Boolean) notificationsMap.get(entry.getKey())));
+                    new Contact((String) entry.getKey(), (String) entry.getValue(), (String) tokensMap.get(entry.getKey()), (Boolean) notificationsMap.get(entry.getKey())));
         }
 
         return userMap;
     }
 
-    public User getUser(String phone) {
+    public Contact getUser(String phone) {
         String name = namesPrefs.getString(phone, null);
         String token = keysPrefs.getString(phone, null);
         boolean isOpened = notificationsPrefs.getBoolean(phone, false);
-        return new User(name, token, isOpened);
+        return new Contact(phone, name, token, isOpened);
     }
 
 
 
-    public void setUser(String phone, User user) {
-        namesPrefs.edit().putString(phone, user.getName()).apply();
-        keysPrefs.edit().putString(phone, user.getKey()).apply();
-        notificationsPrefs.edit().putBoolean(phone, user.isNotificationOpened()).apply();
+    public void setUser(String phone, Contact contact) {
+        namesPrefs.edit().putString(phone, contact.getName()).apply();
+        keysPrefs.edit().putString(phone, contact.getKey()).apply();
+        notificationsPrefs.edit().putBoolean(phone, contact.isActive()).apply();
     }
 
     public void deleteUser(String phone) {

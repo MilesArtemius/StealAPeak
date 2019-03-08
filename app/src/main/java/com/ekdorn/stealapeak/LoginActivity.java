@@ -30,6 +30,7 @@ import com.google.firebase.auth.UserProfileChangeRequest;
 import java.util.concurrent.TimeUnit;
 
 public class LoginActivity extends AppCompatActivity {
+    public static final String PHONE_MASK = "\\+[0-9]([ -])?[0-9]{3}([ -])?[0-9]{3}([ -])?[0-9]{2}([ -])?[0-9]{2}";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,7 +43,7 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 String phone = number.getText().toString();
-                if (phone.matches("\\+[0-9]([ -])?[0-9]{3}([ -])?[0-9]{3}([ -])?[0-9]{2}([ -])?[0-9]{2}")) {
+                if (phone.matches(PHONE_MASK)) {
                     PhoneAuthProvider.OnVerificationStateChangedCallbacks mCallbacks = new PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
 
                         @Override

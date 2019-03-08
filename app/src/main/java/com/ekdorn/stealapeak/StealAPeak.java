@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentManager;
+import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -13,8 +14,11 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Switch;
 import android.widget.TextView;
 
+import com.ekdorn.stealapeak.database.Contact;
+import com.ekdorn.stealapeak.database.AppDatabase;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -22,7 +26,6 @@ import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.iid.InstanceIdResult;
 
 import java.lang.ref.WeakReference;
-import java.util.Map;
 
 public class StealAPeak extends AppCompatActivity {
     private static final int loginActivity = 1;
@@ -58,7 +61,13 @@ public class StealAPeak extends AppCompatActivity {
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close) {
+            @Override
+            public void onDrawerClosed(View drawerView) {
+                super.onDrawerClosed(drawerView);
+                ((Switch) findViewById(R.id.switcher)).setChecked(false);
+            }
+        };
         drawer.addDrawerListener(toggle);
         toggle.syncState();
 
@@ -82,13 +91,6 @@ public class StealAPeak extends AppCompatActivity {
             }
         }, new WeakReference<StealAPeak>(this));
         navigationView.setNavigationItemSelectedListener(ContactsManager.get());
-
-        for (final Map.Entry<String, User> entry: PrefManager.get(this).getAllUsers().entrySet()) {
-            //MenuItem item = navigationView.getMenu().add(R.id.main_group, Menu.NONE, Menu.NONE, entry.getValue().getName());
-            //item.setTitleCondensed(entry.getKey());
-            //item
-            ContactsManager.get().addItem(entry.getKey());
-        }
 
         FirebaseInstanceId.getInstance().getInstanceId().addOnCompleteListener(new OnCompleteListener<InstanceIdResult>() {
                     @Override
@@ -133,6 +135,7 @@ public class StealAPeak extends AppCompatActivity {
             case R.id.action_settings:
                 return true;
             case R.id.action_logout:
+                AppDatabase.getDatabase(this).clearDb();
                 PrefManager.get(this).logOut();
                 FirebaseAuth.getInstance().signOut();
 
