@@ -3,7 +3,6 @@ package com.ekdorn.stealapeak.database;
 import android.arch.persistence.room.ColumnInfo;
 import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.ForeignKey;
-import android.arch.persistence.room.Ignore;
 import android.arch.persistence.room.Index;
 import android.arch.persistence.room.PrimaryKey;
 
@@ -22,33 +21,24 @@ public class Message {
             })
     @Retention(RetentionPolicy.SOURCE)
     public @interface Type {}*/
-    @Ignore
-    public static final String DATA_FLAG = "DATA";
 
-    @Ignore
-    public static final String SERVICE_FLAG = "SERVICE";
-
-    @PrimaryKey
-    @NotNull
     @ColumnInfo(name = "sender")
     private String sender;
 
+    @PrimaryKey
     @ColumnInfo(name = "time")
     private long time;
-
-    @ColumnInfo(name = "type")
-    private String type;
 
     @ColumnInfo(name = "text")
     private String text;
 
-    public Message(String sender, long time, String type, String text) {
+    public Message(@NotNull String sender, long time, String text) {
         this.sender = sender;
         this.time = time;
-        this.type = type;
         this.text = text;
     }
 
+    @NotNull
     public String getSender() {
         return sender;
     }
@@ -57,11 +47,9 @@ public class Message {
         return time;
     }
 
-    public String getType() {
-        return type;
-    }
-
     public String getText() {
         return text;
     }
+
+
 }

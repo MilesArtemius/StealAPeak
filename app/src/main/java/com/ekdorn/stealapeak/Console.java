@@ -119,7 +119,6 @@ public class Console {
      *                 "token": userRecord.displayName,
      *                 "data": {
      *                     "sender": context.auth.token.phone_number,
-     *                     "time": admin.database.ServerValue.TIMESTAMP.toString(),
      *                     "type": type,
      *                     "text": text
      *                 }

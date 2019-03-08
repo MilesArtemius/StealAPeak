@@ -67,7 +67,7 @@ public class ContactsManager implements NavigationView.OnNavigationItemSelectedL
         });
     }
 
-    public void addItem(final String phone) {
+    private void addItem(final String phone) {
         if (this.contactsList != null) {
             MenuItem item = this.contactsList.add(R.id.main_group, Menu.NONE, Menu.FIRST, phone);
             item.setTitleCondensed(phone);
@@ -92,7 +92,7 @@ public class ContactsManager implements NavigationView.OnNavigationItemSelectedL
         }
     }
 
-    public void removeContact(String phone) {
+    private void removeContact(String phone) {
         if (CVM.getContact(phone).isActive()) {
             NotificationsManager.dismissDialogNotification(contextHolder.get(), phone);
         }

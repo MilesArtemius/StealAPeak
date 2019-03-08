@@ -30,7 +30,7 @@ import com.google.firebase.auth.UserProfileChangeRequest;
 import java.util.concurrent.TimeUnit;
 
 public class LoginActivity extends AppCompatActivity {
-    public static final String PHONE_MASK = "\\+[0-9]([ -])?[0-9]{3}([ -])?[0-9]{3}([ -])?[0-9]{2}([ -])?[0-9]{2}";
+    public static final String PHONE_MASK = "\\+[0-9](([ -])?[0-9]{3}){2}(([ -])?[0-9]{2}){2}";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

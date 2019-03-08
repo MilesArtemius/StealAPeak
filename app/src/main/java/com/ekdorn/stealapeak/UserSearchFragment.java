@@ -37,7 +37,7 @@ public class UserSearchFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 final String number = phone.getText().toString();
-                if (number.matches(LoginActivity.PHONE_MASK)) {
+                if (!number.matches(LoginActivity.PHONE_MASK)) {
                     phone.setError("Doesn't looks like phone number...");
                     return;
                 }

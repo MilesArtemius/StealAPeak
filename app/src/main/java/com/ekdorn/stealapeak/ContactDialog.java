@@ -1,4 +1,11 @@
 package com.ekdorn.stealapeak;
 
-public class ContactDialog {
+import android.app.Dialog;
+import android.content.Context;
+import android.support.annotation.NonNull;
+
+public class ContactDialog extends Dialog {
+    public ContactDialog(@NonNull Context context) {
+        super(context);
+    }
 }
