@@ -9,16 +9,14 @@ import java.util.List;
 
 public class MessageViewModel extends AndroidViewModel {
     private MessageDao messageDao;
-    private LiveData<List<Message>> messageLiveData;
 
     public MessageViewModel(@NonNull Application application) {
         super(application);
         messageDao = AppDatabase.getDatabase(application).messageDao();
-        messageLiveData = messageDao.getAllMessages();
     }
 
-    public LiveData<List<Message>> getMessagesList() {
-        return messageLiveData;
+    public LiveData<List<Message>> getMessagesList(String phone) {
+        return messageDao.getAllMessages(phone);
     }
 
 

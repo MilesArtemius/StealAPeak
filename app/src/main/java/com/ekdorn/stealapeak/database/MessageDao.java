@@ -9,11 +9,11 @@ import android.arch.persistence.room.Query;
 
 @Dao
 public interface MessageDao {
-    @Query("SELECT *, MAX(time) FROM message LIMIT 1")
-    Message getLatest();
+    @Query("SELECT *, MAX(time) FROM message WHERE referal = :referal LIMIT 1")
+    Message getLatest(String referal);
 
-    @Query("SELECT * FROM message")
-    LiveData<List<Message>> getAllMessages();
+    @Query("SELECT * FROM message WHERE referal = :referal")
+    LiveData<List<Message>> getAllMessages(String referal);
 
 
 
@@ -23,7 +23,7 @@ public interface MessageDao {
     @Query("DELETE FROM message WHERE time = :time")
     void deleteMessage(long time);
 
-    @Query("DELETE FROM message WHERE sender = :phone")
+    @Query("DELETE FROM message WHERE referal = :phone")
     void deleteMessageFrom(String phone);
 
     @Query("DELETE FROM message")

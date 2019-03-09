@@ -3,9 +3,11 @@ package com.ekdorn.stealapeak;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.ekdorn.stealapeak.database.Contact;
 import com.ekdorn.stealapeak.database.AppDatabase;
+import com.ekdorn.stealapeak.database.Message;
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -29,7 +31,7 @@ public class Console {
      *         const phoneNumber = data.toString();
      *
      *         return admin.auth().getUserByPhoneNumber(phoneNumber).then(function (userRecord) {
-     *             console.log("Contact data shared of: ", phoneNumber + " of " + userRecord.displayName + " and " + userRecord.photoURL);
+     *             console.log("ContactViewer data shared of: ", phoneNumber + " of " + userRecord.displayName + " and " + userRecord.photoURL);
      *             const ret = userRecord.photoURL.split(":");
      *             return {"name": ret[0], "key": ret[1]};
      *
@@ -68,7 +70,8 @@ public class Console {
     }
 
     public static void refreshAllContacts(final Context context) {
-        List<Contact> contacts = AppDatabase.getDatabase(context).contactDao().getAllUsers().getValue();
+        String myPhone = FirebaseAuth.getInstance().getCurrentUser().getPhoneNumber();
+        List<Contact> contacts = AppDatabase.getDatabase(context).contactDao().getAllContacts(myPhone).getValue();
 
         if (contacts != null) {
             for (final Contact contact : contacts) {
@@ -78,7 +81,7 @@ public class Console {
                     public void onGot(Contact contact, boolean successful) {
                         if (successful) {
                             contact.setActive(isNotificationOpened);
-                            AppDatabase.getDatabase(context).contactDao().updateUser(contact);
+                            AppDatabase.getDatabase(context).contactDao().updateContact(contact);
                         }
                     }
                 });
@@ -142,7 +145,10 @@ public class Console {
      * @param text
      * @param type
      */
-    public static void sendMessage(String phone, String text, String type) {
+    public static void sendMessage(String phone, String text, String type, final Context context) {
+        if (AppDatabase.getDatabase(context).contactDao().isContact(phone))
+            AppDatabase.getDatabase(context).messageDao().setMessage(new Message(phone, true, System.currentTimeMillis(), text));
+
         Map<String, String> data = new HashMap<>();
         data.put(PHONE_FIELD, phone);
         data.put(TEXT_FIELD, text);
@@ -161,6 +167,7 @@ public class Console {
                 public void onComplete(@NonNull Task<Boolean> task) {
                     if (!task.isSuccessful()) {
                         Log.e("TAG", "onComplete: failed " + task.getException());
+                        Toast.makeText(context, "User does not exist!", Toast.LENGTH_SHORT).show();
                     }
                 }
         });

@@ -8,22 +8,20 @@ import android.arch.persistence.room.PrimaryKey;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.io.Serializable;
+
 @Entity(tableName = "message",
         foreignKeys = @ForeignKey(entity = Contact.class,
                 parentColumns = "phone",
-                childColumns = "sender",
+                childColumns = "referal",
                 onDelete = ForeignKey.CASCADE),
-        indices = {@Index("time"), @Index("sender")})
-public class Message {
-    /*@StringDef(value = {
-                    DATA_FLAG,
-                    SERVICE_FLAG
-            })
-    @Retention(RetentionPolicy.SOURCE)
-    public @interface Type {}*/
+        indices = {@Index("time"), @Index("referal")})
+public class Message implements Serializable {
+    @ColumnInfo(name = "referal")
+    private String referal;
 
-    @ColumnInfo(name = "sender")
-    private String sender;
+    @ColumnInfo(name = "my_message")
+    private boolean myMessage;
 
     @PrimaryKey
     @ColumnInfo(name = "time")
@@ -32,15 +30,21 @@ public class Message {
     @ColumnInfo(name = "text")
     private String text;
 
-    public Message(@NotNull String sender, long time, String text) {
-        this.sender = sender;
+    public Message(@NotNull String referal, boolean myMessage, long time, String text) {
+        this.myMessage = myMessage;
+        this.referal = referal;
         this.time = time;
         this.text = text;
     }
 
     @NotNull
-    public String getSender() {
-        return sender;
+    public boolean getMyMessage() {
+        return myMessage;
+    }
+
+    @NotNull
+    public String getReferal() {
+        return referal;
     }
 
     public long getTime() {

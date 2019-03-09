@@ -26,23 +26,30 @@
                 <category android:name="android.intent.category.BROWSABLE" />
 
                 <data
-                    android:scheme="http"
                     android:host="steal_a_peak"
-                    android:pathPrefix="/steal" />
+                    android:pathPrefix="/steal"
+                    android:scheme="http" />
             </intent-filter>
         </activity>
 
-        <activity android:name=".LoginActivity"
+        <activity
+            android:name=".LoginActivity"
             android:theme="@style/AppTheme.NoActionBar" />
 
-        <service android:name=".MessagingService"
+        <activity android:name=".ContactViewer"
+            android:theme="@style/AppTheme.AlertDialog">
+
+        </activity>
+
+        <service
+            android:name=".MessagingService"
             android:exported="false">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
 
-        <receiver android:name=".Receiver"/>
+        <receiver android:name=".Receiver" />
 
     </application>
 

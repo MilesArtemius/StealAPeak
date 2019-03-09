@@ -14,7 +14,6 @@ import android.widget.TableRow;
 import android.widget.TextView;
 
 import com.ekdorn.stealapeak.database.Contact;
-import com.google.firebase.auth.FirebaseAuth;
 
 public class UserSearchFragment extends Fragment {
     EditText phone;
@@ -26,7 +25,7 @@ public class UserSearchFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         super.onSaveInstanceState(savedInstanceState);
-        final View root = inflater.inflate(R.layout.inner_fragment_stealapeak, container, false);
+        final View root = inflater.inflate(R.layout.inner_fragment_usersearchfragment, container, false);
 
         phone = (EditText) root.findViewById(R.id.phone);
         onSearchedContainer = (TableRow) root.findViewById(R.id.on_searched_container);
@@ -62,7 +61,7 @@ public class UserSearchFragment extends Fragment {
                             dialogButton.setOnClickListener(new View.OnClickListener() {
                                 @Override
                                 public void onClick(View v) {
-                                    Console.sendMessage(number, "test", "DATA");
+                                    Console.sendMessage(number, "test", "DATA", UserSearchFragment.this.getActivity());
                                     swotch(true);
                                 }
                             });

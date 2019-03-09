@@ -5,7 +5,7 @@ import android.arch.persistence.room.Room;
 import android.arch.persistence.room.RoomDatabase;
 import android.content.Context;
 
-@Database(entities = {Contact.class, Message.class}, version = 1, exportSchema = false)
+@Database(entities = {Contact.class, Message.class}, version = 3, exportSchema = false)
 public abstract class AppDatabase extends RoomDatabase {
     private static AppDatabase INSTANCE;
     private static final String DB_NAME = "data.db";
@@ -25,7 +25,7 @@ public abstract class AppDatabase extends RoomDatabase {
     }
     public void clearDb() {
         if (INSTANCE != null) {
-            INSTANCE.contactDao().deleteAllUsers();
+            INSTANCE.contactDao().deleteAllContacts();
             INSTANCE.messageDao().deleteAllMessages();
         }
     }

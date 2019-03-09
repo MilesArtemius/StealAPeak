@@ -8,9 +8,11 @@ import android.arch.persistence.room.PrimaryKey;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.io.Serializable;
+
 @Entity(tableName = "contact",
         indices = {@Index(value = "phone", unique = true)})
-public class Contact {
+public class Contact implements Serializable {
     @PrimaryKey
     @NotNull
     @ColumnInfo(name = "phone")

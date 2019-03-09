@@ -10,27 +10,27 @@ import java.util.List;
 
 @Dao
 public interface ContactDao {
-    @Query("SELECT * FROM contact")
-    LiveData<List<Contact>> getAllUsers();
+    @Query("SELECT * FROM contact WHERE phone != :myPhone")
+    LiveData<List<Contact>> getAllContacts(String myPhone);
 
     @Query("SELECT * FROM contact WHERE phone LIKE :phone LIMIT 1")
-    Contact getUser(String phone);
+    Contact getContact(String phone);
 
 
-    @Query("SELECT CASE WHEN EXISTS (SELECT * FROM contact WHERE phone LIKE :phone) THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT) END")
-    boolean isUser(String phone);
+    @Query("SELECT CASE WHEN EXISTS (SELECT * FROM contact WHERE phone = :phone) THEN CAST(1 AS BIT) ELSE CAST(0 AS BIT) END")
+    boolean isContact(String phone);
 
     @Insert
-    void setUser(Contact contact);
+    void setContact(Contact contact);
 
     @Update
-    void updateUser(Contact contact);
+    void updateContact(Contact contact);
 
 
 
     @Query("DELETE FROM contact WHERE phone = :phone")
-    void deleteUser(String phone);
+    void deleteContact(String phone);
 
     @Query("DELETE FROM contact")
-    void deleteAllUsers();
+    void deleteAllContacts();
 }

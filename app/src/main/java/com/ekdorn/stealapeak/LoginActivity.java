@@ -16,6 +16,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.ekdorn.stealapeak.database.AppDatabase;
+import com.ekdorn.stealapeak.database.Contact;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.FirebaseException;
@@ -99,6 +101,9 @@ public class LoginActivity extends AppCompatActivity {
                                     .addOnCompleteListener(new OnCompleteListener<Void>() {
                                         @Override
                                         public void onComplete(@NonNull Task<Void> task) {
+                                            String phone = FirebaseAuth.getInstance().getCurrentUser().getPhoneNumber();
+                                            AppDatabase.getDatabase(LoginActivity.this).contactDao().setContact(new Contact(phone, phone, "", false));
+
                                             LoginActivity.this.setResult(RESULT_OK);
                                             finish();
                                         }
