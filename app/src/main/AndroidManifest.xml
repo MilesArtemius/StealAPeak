@@ -9,7 +9,6 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-
         <activity
             android:name=".StealAPeak"
             android:label="@string/title_activity_steal_apeak"
@@ -33,24 +32,28 @@
         </activity>
 
         <activity
-            android:name=".LoginActivity"
+            android:name=".parts.SettingsActivity"
+            android:label="@string/title_activity_settings"
+            android:theme="@style/AppTheme"/>
+
+        <activity
+            android:name=".parts.LoginActivity"
             android:theme="@style/AppTheme.NoActionBar" />
 
-        <activity android:name=".ContactViewer"
-            android:theme="@style/AppTheme.AlertDialog">
-
-        </activity>
+        <activity
+            android:name=".parts.ContactViewer"
+            android:noHistory="true"
+            android:theme="@style/AppTheme.AlertDialog"/>
 
         <service
-            android:name=".MessagingService"
+            android:name=".services.MessagingService"
             android:exported="false">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
 
-        <receiver android:name=".Receiver" />
-
+        <receiver android:name=".services.Receiver" />
     </application>
 
 </manifest>

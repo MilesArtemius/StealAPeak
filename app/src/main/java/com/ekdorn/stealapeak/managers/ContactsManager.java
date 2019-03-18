@@ -1,4 +1,4 @@
-package com.ekdorn.stealapeak;
+package com.ekdorn.stealapeak.managers;
 
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
@@ -11,6 +11,8 @@ import android.widget.CheckBox;
 import android.widget.Switch;
 import android.widget.Toast;
 
+import com.ekdorn.stealapeak.R;
+import com.ekdorn.stealapeak.StealAPeak;
 import com.ekdorn.stealapeak.database.Contact;
 import com.ekdorn.stealapeak.database.ContactViewModel;
 

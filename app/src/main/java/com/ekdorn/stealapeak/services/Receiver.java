@@ -1,9 +1,11 @@
-package com.ekdorn.stealapeak;
+package com.ekdorn.stealapeak.services;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
+
+import com.ekdorn.stealapeak.managers.NotificationsManager;
 
 public class Receiver extends BroadcastReceiver {
     public static final String DIALOG_TYPE       = "DIALOG_ACTION";

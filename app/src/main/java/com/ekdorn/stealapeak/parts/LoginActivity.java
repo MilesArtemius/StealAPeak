@@ -1,4 +1,4 @@
-package com.ekdorn.stealapeak;
+package com.ekdorn.stealapeak.parts;
 
 import android.content.Context;
 import android.net.Uri;
@@ -16,8 +16,9 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.ekdorn.stealapeak.database.AppDatabase;
-import com.ekdorn.stealapeak.database.Contact;
+import com.ekdorn.stealapeak.R;
+import com.ekdorn.stealapeak.managers.Console;
+import com.ekdorn.stealapeak.managers.CryptoManager;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.FirebaseException;
@@ -92,22 +93,14 @@ public class LoginActivity extends AppCompatActivity {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
-                            UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
-                                    .setPhotoUri(Uri.parse(FirebaseAuth.getInstance().getCurrentUser().getPhoneNumber() +
-                                            ":" /*+ KEY */))
-                                    .build();
-
-                            FirebaseAuth.getInstance().getCurrentUser().updateProfile(profileUpdates)
-                                    .addOnCompleteListener(new OnCompleteListener<Void>() {
-                                        @Override
-                                        public void onComplete(@NonNull Task<Void> task) {
-                                            String phone = FirebaseAuth.getInstance().getCurrentUser().getPhoneNumber();
-                                            AppDatabase.getDatabase(LoginActivity.this).contactDao().setContact(new Contact(phone, phone, "", false));
-
-                                            LoginActivity.this.setResult(RESULT_OK);
-                                            finish();
-                                        }
-                                    });
+                            CryptoManager.init();
+                            Console.reloadName(LoginActivity.this, FirebaseAuth.getInstance().getCurrentUser().getPhoneNumber(), new Console.OnSuccess() {
+                                @Override
+                                public void successful() {
+                                    LoginActivity.this.setResult(RESULT_OK);
+                                    finish();
+                                }
+                            });
                         } else {
                             Toast.makeText(LoginActivity.this, "Sorry, not logged in...", Toast.LENGTH_SHORT).show();
                             Button loginButton = (Button) findViewById(R.id.button);

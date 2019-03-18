@@ -1,6 +1,8 @@
-package com.ekdorn.stealapeak;
+package com.ekdorn.stealapeak.managers;
 
 import android.content.Context;
+import android.net.Uri;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.util.Log;
 import android.widget.Toast;
@@ -8,6 +10,7 @@ import android.widget.Toast;
 import com.ekdorn.stealapeak.database.Contact;
 import com.ekdorn.stealapeak.database.AppDatabase;
 import com.ekdorn.stealapeak.database.Message;
+import com.ekdorn.stealapeak.parts.LoginActivity;
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -15,6 +18,8 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.functions.FirebaseFunctions;
 import com.google.firebase.functions.HttpsCallableResult;
+
+import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.List;
@@ -70,8 +75,7 @@ public class Console {
     }
 
     public static void refreshAllContacts(final Context context) {
-        String myPhone = FirebaseAuth.getInstance().getCurrentUser().getPhoneNumber();
-        List<Contact> contacts = AppDatabase.getDatabase(context).contactDao().getAllContacts(myPhone).getValue();
+        List<Contact> contacts = AppDatabase.getDatabase(context).contactDao().getAllContacts().getValue();
 
         if (contacts != null) {
             for (final Contact contact : contacts) {
@@ -103,6 +107,26 @@ public class Console {
                         }
                     }
                 });
+    }
+
+    public static void reloadName(Context context, final String name, @Nullable final OnSuccess post) {
+        PreferenceManager.getDefaultSharedPreferences(context).edit().putString("name", name).apply();
+
+        UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
+                .setPhotoUri(Uri.parse(name + ":" + CryptoManager.getPublicKey()))
+                .build();
+
+        FirebaseAuth.getInstance().getCurrentUser().updateProfile(profileUpdates)
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        if (post != null) post.successful();
+                    }
+                });
+    }
+
+    public interface OnSuccess {
+        public void successful();
     }
 
     private static final String FUNC_SM_NAME = "sendMessage";
@@ -141,17 +165,16 @@ public class Console {
      *     }
      * });
      *
-     * @param phone
-     * @param text
+     * @param message
      * @param type
      */
-    public static void sendMessage(String phone, String text, String type, final Context context) {
-        if (AppDatabase.getDatabase(context).contactDao().isContact(phone))
-            AppDatabase.getDatabase(context).messageDao().setMessage(new Message(phone, true, System.currentTimeMillis(), text));
+    public static void sendMessage(Message message, String type, final Context context) {
+        /*if (AppDatabase.getDatabase(context).contactDao().isContact(message.getReferal()))
+            AppDatabase.getDatabase(context).messageDao().setMessage(message);*/
 
         Map<String, String> data = new HashMap<>();
-        data.put(PHONE_FIELD, phone);
-        data.put(TEXT_FIELD, text);
+        data.put(PHONE_FIELD, message.getReferal());
+        data.put(TEXT_FIELD, message.getText());
         data.put(TYPE_FIELD, type);
 
         FirebaseFunctions.getInstance()

@@ -1,4 +1,4 @@
-package com.ekdorn.stealapeak;
+package com.ekdorn.stealapeak.parts;
 
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
@@ -20,19 +20,21 @@ import android.widget.LinearLayout;
 import android.widget.Space;
 import android.widget.TextView;
 
+import com.ekdorn.stealapeak.services.MessagingService;
+import com.ekdorn.stealapeak.R;
 import com.ekdorn.stealapeak.database.AppDatabase;
 import com.ekdorn.stealapeak.database.Contact;
 import com.ekdorn.stealapeak.database.Message;
 import com.ekdorn.stealapeak.database.MessageViewModel;
-import com.google.firebase.auth.FirebaseAuth;
+import com.ekdorn.stealapeak.managers.Console;
+import com.ekdorn.stealapeak.managers.NotificationsManager;
+import com.ekdorn.stealapeak.managers.PrefManager;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class ContactViewer extends AppCompatActivity {
     public static final String PHONE        = "phone";
-    public static final String MESSAGE_TYPE = "MESSAGE";
-    public static final String CONTACT_TYPE = "CONTACT";
     public static final String DATA_KEY     = "data";
 
     private Button sendButton;
@@ -56,14 +58,6 @@ public class ContactViewer extends AppCompatActivity {
         initData();
 
         toolbar = (Toolbar) findViewById(R.id.dialog_toolbar);
-        toolbar.setNavigationIcon(R.drawable.ic_menu_share);
-        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-            }
-        });
-
         sendButton = (Button) findViewById(R.id.send_button);
         sendText = (EditText) findViewById(R.id.send_text);
 
@@ -119,7 +113,8 @@ public class ContactViewer extends AppCompatActivity {
         sendButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Console.sendMessage(phone, sendText.getText().toString(), MessagingService.TYPE_FIELD_DATA, ContactViewer.this);
+                Message message = new Message(phone, true, System.currentTimeMillis(), sendText.getText().toString());
+                Console.sendMessage(message , MessagingService.TYPE_FIELD_DATA, ContactViewer.this);
                 sendText.setText("");
                 finish();
             }
@@ -138,12 +133,16 @@ public class ContactViewer extends AppCompatActivity {
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.scrollToPosition(messageList.size() - 1);
 
+        PrefManager.get(this).nullNotifications(phone);
+
         sendButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Console.sendMessage(phone, sendText.getText().toString(), MessagingService.TYPE_FIELD_DATA, ContactViewer.this);
+                Message message = new Message(phone, true, System.currentTimeMillis(), sendText.getText().toString());
+                Console.sendMessage(message, MessagingService.TYPE_FIELD_DATA, ContactViewer.this);
                 sendText.setText("");
                 recyclerView.scrollToPosition(messageList.size() - 1);
+                NotificationsManager.activeNotification(ContactViewer.this, phone, message);
             }
         });
 
@@ -157,8 +156,9 @@ public class ContactViewer extends AppCompatActivity {
         sendButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Message message = new Message(ContactViewer.this.phone, true, System.currentTimeMillis(), sendText.getText().toString());
+                Console.sendMessage(message, MessagingService.TYPE_FIELD_DATA, ContactViewer.this);
                 sendText.setText("");
-                Console.sendMessage(ContactViewer.this.phone, sendText.getText().toString(), MessagingService.TYPE_FIELD_DATA, ContactViewer.this);
                 finish();
             }
         });

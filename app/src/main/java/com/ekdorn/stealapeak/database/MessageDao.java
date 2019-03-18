@@ -15,6 +15,9 @@ public interface MessageDao {
     @Query("SELECT * FROM message WHERE referal = :referal")
     LiveData<List<Message>> getAllMessages(String referal);
 
+    @Query("SELECT COUNT(referal) FROM message WHERE referal = :referal")
+    int getNumberOfMessages(String referal);
+
 
 
     @Insert

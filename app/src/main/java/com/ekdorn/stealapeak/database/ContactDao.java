@@ -10,8 +10,8 @@ import java.util.List;
 
 @Dao
 public interface ContactDao {
-    @Query("SELECT * FROM contact WHERE phone != :myPhone")
-    LiveData<List<Contact>> getAllContacts(String myPhone);
+    @Query("SELECT * FROM contact")
+    LiveData<List<Contact>> getAllContacts();
 
     @Query("SELECT * FROM contact WHERE phone LIKE :phone LIMIT 1")
     Contact getContact(String phone);

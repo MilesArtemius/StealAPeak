@@ -2,6 +2,7 @@ package com.ekdorn.stealapeak;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentManager;
 import android.util.Log;
@@ -17,8 +18,13 @@ import android.view.MenuItem;
 import android.widget.Switch;
 import android.widget.TextView;
 
-import com.ekdorn.stealapeak.database.Contact;
 import com.ekdorn.stealapeak.database.AppDatabase;
+import com.ekdorn.stealapeak.managers.Console;
+import com.ekdorn.stealapeak.managers.ContactsManager;
+import com.ekdorn.stealapeak.managers.PrefManager;
+import com.ekdorn.stealapeak.parts.LoginActivity;
+import com.ekdorn.stealapeak.parts.SettingsActivity;
+import com.ekdorn.stealapeak.parts.UserSearchFragment;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -100,7 +106,8 @@ public class StealAPeak extends AppCompatActivity {
                         }
                     }
                 });
-        Console.refreshAllContacts(this); // not always!
+        Log.e("TAG", "postCreate: " + PreferenceManager.getDefaultSharedPreferences(this).getString("sync", "-1"));
+        if (PreferenceManager.getDefaultSharedPreferences(this).getString("sync", "-1").equals("-1")) Console.refreshAllContacts(this);
 
         FragmentManager manager = this.getSupportFragmentManager();
         manager.beginTransaction().add(R.id.user_search_frame, new UserSearchFragment()).commit();
@@ -133,6 +140,9 @@ public class StealAPeak extends AppCompatActivity {
         //noinspection SimplifiableIfStatement
         switch (id) {
             case R.id.action_settings:
+                Intent intentDialog = new Intent(StealAPeak.this, SettingsActivity.class);
+                intentDialog.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(intentDialog);
                 return true;
             case R.id.action_logout:
                 AppDatabase.getDatabase(this).clearDb();
@@ -141,6 +151,7 @@ public class StealAPeak extends AppCompatActivity {
 
                 closeOptionsMenu();
                 StealAPeak.this.recreate();
+                return true;
         }
 
         return super.onOptionsItemSelected(item);

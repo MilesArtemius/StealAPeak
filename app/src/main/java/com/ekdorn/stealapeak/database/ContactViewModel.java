@@ -5,8 +5,6 @@ import android.arch.lifecycle.AndroidViewModel;
 import android.arch.lifecycle.LiveData;
 import android.support.annotation.NonNull;
 
-import com.google.firebase.auth.FirebaseAuth;
-
 import java.util.List;
 
 public class ContactViewModel extends AndroidViewModel {
@@ -15,9 +13,8 @@ public class ContactViewModel extends AndroidViewModel {
 
     public ContactViewModel(@NonNull Application application) {
         super(application);
-        String myPhone = FirebaseAuth.getInstance().getCurrentUser().getPhoneNumber();
         contactDao = AppDatabase.getDatabase(application).contactDao();
-        contactLiveData = contactDao.getAllContacts(myPhone);
+        contactLiveData = contactDao.getAllContacts();
     }
 
     public LiveData<List<Contact>> getContactsList() {

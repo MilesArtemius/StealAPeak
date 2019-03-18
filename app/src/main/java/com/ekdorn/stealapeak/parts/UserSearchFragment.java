@@ -1,5 +1,6 @@
-package com.ekdorn.stealapeak;
+package com.ekdorn.stealapeak.parts;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -13,7 +14,11 @@ import android.widget.LinearLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 
+import com.ekdorn.stealapeak.R;
 import com.ekdorn.stealapeak.database.Contact;
+import com.ekdorn.stealapeak.managers.Console;
+import com.ekdorn.stealapeak.managers.ContactsManager;
+import com.ekdorn.stealapeak.managers.NotificationsManager;
 
 public class UserSearchFragment extends Fragment {
     EditText phone;
@@ -61,7 +66,10 @@ public class UserSearchFragment extends Fragment {
                             dialogButton.setOnClickListener(new View.OnClickListener() {
                                 @Override
                                 public void onClick(View v) {
-                                    Console.sendMessage(number, "test", "DATA", UserSearchFragment.this.getActivity());
+                                    Intent intentDialog = new Intent(UserSearchFragment.this.getActivity(), ContactViewer.class);
+                                    intentDialog.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                                    startActivity(intentDialog);
+
                                     swotch(true);
                                 }
                             });
@@ -71,6 +79,13 @@ public class UserSearchFragment extends Fragment {
                                 @Override
                                 public void onClick(View v) {
                                     ContactsManager.get().addContact(contact, number);
+                                    NotificationsManager.activeNotification(UserSearchFragment.this.getActivity(), number, null);
+
+                                    Intent intentDialog = new Intent(UserSearchFragment.this.getActivity(), ContactViewer.class);
+                                    intentDialog.putExtra(ContactViewer.PHONE, contact.getPhone());
+                                    intentDialog.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                                    startActivity(intentDialog);
+
                                     swotch(true);
                                 }
                             });

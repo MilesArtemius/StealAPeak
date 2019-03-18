@@ -1,4 +1,4 @@
-package com.ekdorn.stealapeak;
+package com.ekdorn.stealapeak.managers;
 
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -7,6 +7,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.support.annotation.Nullable;
 
+import com.ekdorn.stealapeak.parts.ContactViewer;
+import com.ekdorn.stealapeak.R;
+import com.ekdorn.stealapeak.services.Receiver;
 import com.ekdorn.stealapeak.database.Contact;
 import com.ekdorn.stealapeak.database.AppDatabase;
 import com.ekdorn.stealapeak.database.Message;
@@ -54,7 +57,7 @@ public class NotificationsManager {
                 .setContentTitle(contact.getName())
                 .setContentText(text)
                 .setSmallIcon(R.drawable.ic_menu_slideshow)
-                .setNumber(1)
+                .setNumber(AppDatabase.getDatabase(context).messageDao().getNumberOfMessages(contact.getPhone()))
                 .build();
         n.flags = Notification.FLAG_ONGOING_EVENT | Notification.FLAG_NO_CLEAR;
         nMN.notify(contact.getName().hashCode(), n);
@@ -73,7 +76,6 @@ public class NotificationsManager {
                 .setContentTitle(message.getReferal())
                 .setContentText(message.getText())
                 .setSmallIcon(R.drawable.ic_menu_slideshow)
-                .setNumber(1)
                 .build();
         nMN.notify(message.getReferal().hashCode(), n);
     }

@@ -1,8 +1,10 @@
-package com.ekdorn.stealapeak;
+package com.ekdorn.stealapeak.services;
 
 import android.util.Log;
 
 import com.ekdorn.stealapeak.database.Message;
+import com.ekdorn.stealapeak.managers.Console;
+import com.ekdorn.stealapeak.managers.NotificationsManager;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
