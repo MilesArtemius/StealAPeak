@@ -113,7 +113,7 @@ public class Console {
         PreferenceManager.getDefaultSharedPreferences(context).edit().putString("name", name).apply();
 
         UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
-                .setPhotoUri(Uri.parse(name + ":" + CryptoManager.getPublicKey()))
+                .setPhotoUri(Uri.parse(name + ":" + CryptoManager.getPublicKey(context)))
                 .build();
 
         FirebaseAuth.getInstance().getCurrentUser().updateProfile(profileUpdates)
@@ -171,10 +171,12 @@ public class Console {
     public static void sendMessage(Message message, String type, final Context context) {
         /*if (AppDatabase.getDatabase(context).contactDao().isContact(message.getReferal()))
             AppDatabase.getDatabase(context).messageDao().setMessage(message);*/
+        String key = AppDatabase.getDatabase(context).contactDao().getContact(message.getReferal()).getKey();
+        String transfer = CryptoManager.encode(message.getText(), key);
 
         Map<String, String> data = new HashMap<>();
         data.put(PHONE_FIELD, message.getReferal());
-        data.put(TEXT_FIELD, message.getText());
+        data.put(TEXT_FIELD, transfer);
         data.put(TYPE_FIELD, type);
 
         FirebaseFunctions.getInstance()

@@ -146,7 +146,7 @@ public class StealAPeak extends AppCompatActivity {
                 return true;
             case R.id.action_logout:
                 AppDatabase.getDatabase(this).clearDb();
-                PrefManager.get(this).logOut();
+                PreferenceManager.getDefaultSharedPreferences(this).edit().clear().apply();
                 FirebaseAuth.getInstance().signOut();
 
                 closeOptionsMenu();

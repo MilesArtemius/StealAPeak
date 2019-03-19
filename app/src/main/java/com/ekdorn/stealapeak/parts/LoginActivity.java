@@ -93,7 +93,7 @@ public class LoginActivity extends AppCompatActivity {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
-                            CryptoManager.init();
+                            CryptoManager.init(LoginActivity.this);
                             Console.reloadName(LoginActivity.this, FirebaseAuth.getInstance().getCurrentUser().getPhoneNumber(), new Console.OnSuccess() {
                                 @Override
                                 public void successful() {

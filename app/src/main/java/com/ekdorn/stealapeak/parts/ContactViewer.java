@@ -133,8 +133,6 @@ public class ContactViewer extends AppCompatActivity {
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.scrollToPosition(messageList.size() - 1);
 
-        PrefManager.get(this).nullNotifications(phone);
-
         sendButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

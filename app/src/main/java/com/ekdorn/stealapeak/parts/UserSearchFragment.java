@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,6 +20,7 @@ import com.ekdorn.stealapeak.database.Contact;
 import com.ekdorn.stealapeak.managers.Console;
 import com.ekdorn.stealapeak.managers.ContactsManager;
 import com.ekdorn.stealapeak.managers.NotificationsManager;
+import com.google.firebase.auth.FirebaseAuth;
 
 public class UserSearchFragment extends Fragment {
     EditText phone;
@@ -41,8 +43,12 @@ public class UserSearchFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 final String number = phone.getText().toString();
+                String myPhone = FirebaseAuth.getInstance().getCurrentUser().getPhoneNumber();
                 if (!number.matches(LoginActivity.PHONE_MASK)) {
                     phone.setError("Doesn't looks like phone number...");
+                    return;
+                } else if (number.equals(myPhone)) {
+                    phone.setError("This is your phone. Nice to meet you.");
                     return;
                 }
                 findButton.setEnabled(false);

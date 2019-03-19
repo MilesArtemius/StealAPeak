@@ -4,6 +4,7 @@ import android.util.Log;
 
 import com.ekdorn.stealapeak.database.Message;
 import com.ekdorn.stealapeak.managers.Console;
+import com.ekdorn.stealapeak.managers.CryptoManager;
 import com.ekdorn.stealapeak.managers.NotificationsManager;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.messaging.FirebaseMessagingService;
@@ -23,10 +24,12 @@ public class MessagingService extends FirebaseMessagingService {
             //Log.e("TAG", "onMessageReceived: received! " + remoteMessage.getData());
             if (remoteMessage.getData().get(TYPE_FIELD).equals(TYPE_FIELD_DATA)) {
                 String phone = remoteMessage.getData().get(SENDER_FIELD);
-                Message message = new Message(phone, false, remoteMessage.getSentTime(), remoteMessage.getData().get(TEXT_FIELD));
+                String text = CryptoManager.decode(this, remoteMessage.getData().get(TEXT_FIELD));
+
+                Message message = new Message(phone, false, remoteMessage.getSentTime(), text);
                 NotificationsManager.activeNotification(this, phone, message);
             } else {
-
+                // something.
             }
         } else {
             Log.e("TAG", "onMessageReceived: notification malformed");
