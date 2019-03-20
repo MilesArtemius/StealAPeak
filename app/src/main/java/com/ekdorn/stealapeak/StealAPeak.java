@@ -17,10 +17,12 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Switch;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.ekdorn.stealapeak.database.AppDatabase;
 import com.ekdorn.stealapeak.managers.Console;
 import com.ekdorn.stealapeak.managers.ContactsManager;
+import com.ekdorn.stealapeak.managers.CryptoManager;
 import com.ekdorn.stealapeak.managers.PrefManager;
 import com.ekdorn.stealapeak.parts.LoginActivity;
 import com.ekdorn.stealapeak.parts.SettingsActivity;
@@ -66,7 +68,7 @@ public class StealAPeak extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+        final ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close) {
             @Override
             public void onDrawerClosed(View drawerView) {
@@ -92,8 +94,8 @@ public class StealAPeak extends AppCompatActivity {
             }
             @Override
             public void added() {
-                DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-                drawer.openDrawer(GravityCompat.START);
+                DrawerLayout ndrawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+                ndrawer.openDrawer(GravityCompat.START);
             }
         }, new WeakReference<StealAPeak>(this));
         navigationView.setNavigationItemSelectedListener(ContactsManager.get());
@@ -106,7 +108,6 @@ public class StealAPeak extends AppCompatActivity {
                         }
                     }
                 });
-        Log.e("TAG", "postCreate: " + PreferenceManager.getDefaultSharedPreferences(this).getString("sync", "-1"));
         if (PreferenceManager.getDefaultSharedPreferences(this).getString("sync", "-1").equals("-1")) Console.refreshAllContacts(this);
 
         FragmentManager manager = this.getSupportFragmentManager();

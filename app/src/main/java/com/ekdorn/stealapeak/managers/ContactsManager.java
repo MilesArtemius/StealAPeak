@@ -38,12 +38,8 @@ public class ContactsManager implements NavigationView.OnNavigationItemSelectedL
     }
 
     public static ContactsManager create(Menu menu, OnSelected selected, WeakReference<StealAPeak> holder) {
-        if (manager != null) {
-            return manager;
-        } else {
-            manager = new ContactsManager(menu, selected, holder);
-            return manager;
-        }
+        manager = new ContactsManager(menu, selected, holder);
+        return manager;
     }
 
     public static ContactsManager get() {
