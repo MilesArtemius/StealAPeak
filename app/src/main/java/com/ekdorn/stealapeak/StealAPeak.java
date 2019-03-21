@@ -27,6 +27,7 @@ import com.ekdorn.stealapeak.managers.PrefManager;
 import com.ekdorn.stealapeak.parts.LoginActivity;
 import com.ekdorn.stealapeak.parts.SettingsActivity;
 import com.ekdorn.stealapeak.parts.UserSearchFragment;
+import com.ekdorn.stealapeak.services.MessagingService;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -108,7 +109,7 @@ public class StealAPeak extends AppCompatActivity {
                         }
                     }
                 });
-        if (PreferenceManager.getDefaultSharedPreferences(this).getString("sync", "-1").equals("-1")) Console.refreshAllContacts(this);
+        //if (PreferenceManager.getDefaultSharedPreferences(this).getString("sync", "-1").equals("-1")) Console.refreshAllContacts(this);
 
         FragmentManager manager = this.getSupportFragmentManager();
         manager.beginTransaction().add(R.id.user_search_frame, new UserSearchFragment()).commit();
@@ -146,6 +147,8 @@ public class StealAPeak extends AppCompatActivity {
                 startActivity(intentDialog);
                 return true;
             case R.id.action_logout:
+                Console.sendToAll(StealAPeak.this, MessagingService.SERVICE_RELOGIN, MessagingService.TYPE_FIELD_SERVICE);
+
                 AppDatabase.getDatabase(this).clearDb();
                 PreferenceManager.getDefaultSharedPreferences(this).edit().clear().apply();
                 FirebaseAuth.getInstance().signOut();

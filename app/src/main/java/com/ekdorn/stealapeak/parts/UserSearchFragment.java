@@ -72,9 +72,7 @@ public class UserSearchFragment extends Fragment {
                             dialogButton.setOnClickListener(new View.OnClickListener() {
                                 @Override
                                 public void onClick(View v) {
-                                    Intent intentDialog = new Intent(UserSearchFragment.this.getActivity(), ContactViewer.class);
-                                    intentDialog.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                                    startActivity(intentDialog);
+                                    // twink to user;
 
                                     swotch(true);
                                 }
@@ -84,7 +82,7 @@ public class UserSearchFragment extends Fragment {
                             contactsButton.setOnClickListener(new View.OnClickListener() {
                                 @Override
                                 public void onClick(View v) {
-                                    ContactsManager.get().addContact(contact, number);
+                                    ContactsManager.get().addContact(contact, number, UserSearchFragment.this.getActivity());
                                     NotificationsManager.activeNotification(UserSearchFragment.this.getActivity(), number, null);
 
                                     Intent intentDialog = new Intent(UserSearchFragment.this.getActivity(), ContactViewer.class);

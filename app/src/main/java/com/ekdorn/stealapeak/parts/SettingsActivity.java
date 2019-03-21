@@ -16,6 +16,7 @@ import android.widget.Toast;
 
 import com.ekdorn.stealapeak.R;
 import com.ekdorn.stealapeak.managers.Console;
+import com.ekdorn.stealapeak.services.MessagingService;
 import com.google.firebase.auth.FirebaseAuth;
 
 
@@ -41,6 +42,7 @@ public class SettingsActivity extends AppCompatActivity {
                         @Override
                         public void successful() {
                             Toast.makeText(preference.getContext(), "Name changed!", Toast.LENGTH_SHORT).show();
+                            Console.sendToAll(preference.getContext(), MessagingService.SERVICE_NAME_CH, MessagingService.TYPE_FIELD_SERVICE);
                         }
                     });
                 }

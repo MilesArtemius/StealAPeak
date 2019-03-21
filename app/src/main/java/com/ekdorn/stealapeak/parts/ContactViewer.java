@@ -20,32 +20,24 @@ import android.widget.LinearLayout;
 import android.widget.Space;
 import android.widget.TextView;
 
+import com.ekdorn.stealapeak.managers.CryptoManager;
 import com.ekdorn.stealapeak.services.MessagingService;
 import com.ekdorn.stealapeak.R;
 import com.ekdorn.stealapeak.database.AppDatabase;
-import com.ekdorn.stealapeak.database.Contact;
 import com.ekdorn.stealapeak.database.Message;
 import com.ekdorn.stealapeak.database.MessageViewModel;
 import com.ekdorn.stealapeak.managers.Console;
 import com.ekdorn.stealapeak.managers.NotificationsManager;
-import com.ekdorn.stealapeak.managers.PrefManager;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class ContactViewer extends AppCompatActivity {
     public static final String PHONE        = "phone";
-    public static final String DATA_KEY     = "data";
 
-    private Button sendButton;
-    private EditText sendText;
-    private Toolbar toolbar;
-
-    private Contact dialogist;
     private String phone;
     private List<Message> messageList = new ArrayList<>();
     private MessageAdapter messagesAdapter;
-    private MessageViewModel MVM;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,31 +49,41 @@ public class ContactViewer extends AppCompatActivity {
         phone = getIntent().getStringExtra(PHONE);
         initData();
 
-        toolbar = (Toolbar) findViewById(R.id.dialog_toolbar);
-        sendButton = (Button) findViewById(R.id.send_button);
-        sendText = (EditText) findViewById(R.id.send_text);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.dialog_toolbar);
+        Button sendButton = (Button) findViewById(R.id.send_button);
+        final EditText sendText = (EditText) findViewById(R.id.send_text);
 
-        if (AppDatabase.getDatabase(this).contactDao().isContact(phone)) {
-            dialogist = AppDatabase.getDatabase(this).contactDao().getContact(phone);
-            loadAsDialog();
-        } else if (getIntent().hasExtra(DATA_KEY)) {
-            Console.getUserByPhone(phone, new Console.OnLoaded() {
-                @Override
-                public void onGot(Contact contact, boolean successful) {
-                    if (successful) {
-                        loadAsMessage(contact);
-                    }
-                }
-            });
-        } else {
-            loadAnonymously(phone);
-        }
+        findViewById(R.id.message_view).setVisibility(View.GONE);
+        findViewById(R.id.recycler_view).setVisibility(View.VISIBLE);
+
+        final RecyclerView recyclerView = findViewById(R.id.recycler_view);
+        recyclerView.setAdapter(messagesAdapter);
+        recyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        recyclerView.scrollToPosition(messageList.size() - 1);
+
+        sendButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String text = sendText.getText().toString();
+                String key = AppDatabase.getDatabase(ContactViewer.this).contactDao().getContact(phone).getKey();
+                String transfer = CryptoManager.encode(text, key);
+                Console.sendMessage(phone, transfer, MessagingService.TYPE_FIELD_DATA, ContactViewer.this);
+
+                sendText.setText("");
+                recyclerView.scrollToPosition(messageList.size() - 1);
+                Message message = new Message(phone, true, System.currentTimeMillis(), text);
+                NotificationsManager.activeNotification(ContactViewer.this, phone, message);
+            }
+        });
+
+        toolbar.setTitle(AppDatabase.getDatabase(this).contactDao().getContact(phone).getName());
 
         setSupportActionBar(toolbar);
     }
 
     private void initData() {
-        MVM = ViewModelProviders.of(this).get(MessageViewModel.class);
+        MessageViewModel MVM = ViewModelProviders.of(this).get(MessageViewModel.class);
         MVM.getMessagesList(phone).observe(this, new Observer<List<Message>>() {
             @Override
             public void onChanged(@Nullable List<Message> messages) {
@@ -97,71 +99,6 @@ public class ContactViewer extends AppCompatActivity {
                 recyclerView.scrollToPosition(messageList.size() - 1);
             }
         });
-    }
-
-    private void loadAsMessage(Contact contact) {
-        findViewById(R.id.message_view).setVisibility(View.VISIBLE);
-        findViewById(R.id.recycler_view).setVisibility(View.GONE);
-
-        TextView textView = findViewById(R.id.text_view);
-        TextView timeView = findViewById(R.id.time_view);
-
-        Message current = (Message) getIntent().getSerializableExtra(DATA_KEY);
-        textView.setText(current.getText());
-        timeView.setText(String.valueOf(current.getTime()));
-
-        sendButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Message message = new Message(phone, true, System.currentTimeMillis(), sendText.getText().toString());
-                Console.sendMessage(message , MessagingService.TYPE_FIELD_DATA, ContactViewer.this);
-                sendText.setText("");
-                finish();
-            }
-        });
-
-        toolbar.setTitle(contact.getName());
-    }
-
-    private void loadAsDialog() {
-        findViewById(R.id.message_view).setVisibility(View.GONE);
-        findViewById(R.id.recycler_view).setVisibility(View.VISIBLE);
-
-        final RecyclerView recyclerView = findViewById(R.id.recycler_view);
-        recyclerView.setAdapter(messagesAdapter);
-        recyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        recyclerView.scrollToPosition(messageList.size() - 1);
-
-        sendButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Message message = new Message(phone, true, System.currentTimeMillis(), sendText.getText().toString());
-                Console.sendMessage(message, MessagingService.TYPE_FIELD_DATA, ContactViewer.this);
-                sendText.setText("");
-                recyclerView.scrollToPosition(messageList.size() - 1);
-                NotificationsManager.activeNotification(ContactViewer.this, phone, message);
-            }
-        });
-
-        toolbar.setTitle(dialogist.getName());
-    }
-
-    private void loadAnonymously(String phone) {
-        findViewById(R.id.message_view).setVisibility(View.GONE);
-        findViewById(R.id.recycler_view).setVisibility(View.GONE);
-
-        sendButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Message message = new Message(ContactViewer.this.phone, true, System.currentTimeMillis(), sendText.getText().toString());
-                Console.sendMessage(message, MessagingService.TYPE_FIELD_DATA, ContactViewer.this);
-                sendText.setText("");
-                finish();
-            }
-        });
-
-        toolbar.setTitle(phone);
     }
 
 

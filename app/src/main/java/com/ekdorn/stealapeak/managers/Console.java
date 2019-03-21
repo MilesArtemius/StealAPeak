@@ -74,21 +74,12 @@ public class Console {
                 });
     }
 
-    public static void refreshAllContacts(final Context context) {
+    public static void sendToAll(final Context context, String text, String type) {
         List<Contact> contacts = AppDatabase.getDatabase(context).contactDao().getAllContacts().getValue();
 
         if (contacts != null) {
             for (final Contact contact : contacts) {
-                final boolean isNotificationOpened = contact.isActive();
-                getUserByPhone(contact.getPhone(), new OnLoaded() {
-                    @Override
-                    public void onGot(Contact contact, boolean successful) {
-                        if (successful) {
-                            contact.setActive(isNotificationOpened);
-                            AppDatabase.getDatabase(context).contactDao().updateContact(contact);
-                        }
-                    }
-                });
+                sendMessage(contact.getPhone(), text, type, context);
             }
         }
     }
@@ -165,18 +156,18 @@ public class Console {
      *     }
      * });
      *
-     * @param message
+     * @param phone
+     * @param text
      * @param type
      */
-    public static void sendMessage(Message message, String type, final Context context) {
+    public static void sendMessage(String phone, String text, String type, final Context context) {
         /*if (AppDatabase.getDatabase(context).contactDao().isContact(message.getReferal()))
             AppDatabase.getDatabase(context).messageDao().setMessage(message);*/
-        String key = AppDatabase.getDatabase(context).contactDao().getContact(message.getReferal()).getKey();
-        String transfer = CryptoManager.encode(message.getText(), key);
+
 
         Map<String, String> data = new HashMap<>();
-        data.put(PHONE_FIELD, message.getReferal());
-        data.put(TEXT_FIELD, transfer);
+        data.put(PHONE_FIELD, phone);
+        data.put(TEXT_FIELD, text);
         data.put(TYPE_FIELD, type);
 
         FirebaseFunctions.getInstance()

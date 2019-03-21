@@ -2,6 +2,7 @@ package com.ekdorn.stealapeak.managers;
 
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
+import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.util.Log;
@@ -15,6 +16,7 @@ import com.ekdorn.stealapeak.R;
 import com.ekdorn.stealapeak.StealAPeak;
 import com.ekdorn.stealapeak.database.Contact;
 import com.ekdorn.stealapeak.database.ContactViewModel;
+import com.ekdorn.stealapeak.services.MessagingService;
 
 import org.jetbrains.annotations.Nullable;
 
@@ -81,9 +83,10 @@ public class ContactsManager implements NavigationView.OnNavigationItemSelectedL
 
 
 
-    public void addContact(Contact contact, String phone) {
+    public void addContact(Contact contact, String phone, Context context) {
         if (!CVM.isContact(phone)) {
             CVM.setContact(contact);
+            Console.sendMessage(phone, MessagingService.SERVICE_CONTACT_CR, MessagingService.TYPE_FIELD_SERVICE, context);
             selected.added();
         } else {
             Toast.makeText(contextHolder.get(), "Already in contacts!", Toast.LENGTH_SHORT).show();
