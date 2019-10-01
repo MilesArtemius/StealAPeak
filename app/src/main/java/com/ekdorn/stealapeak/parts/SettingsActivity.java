@@ -1,113 +1,106 @@
 package com.ekdorn.stealapeak.parts;
 
-import android.annotation.TargetApi;
-import android.os.Build;
+import android.content.Intent;
+import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Bundle;
-import android.preference.EditTextPreference;
-import android.preference.ListPreference;
-import android.preference.Preference;
-import android.preference.PreferenceFragment;
-import android.preference.PreferenceManager;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.preference.ListPreference;
+import androidx.preference.Preference;
+import androidx.preference.PreferenceFragmentCompat;
+import androidx.preference.PreferenceManager;
+
 import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.ekdorn.stealapeak.R;
+import com.ekdorn.stealapeak.StealAPeak;
 import com.ekdorn.stealapeak.managers.Console;
 import com.ekdorn.stealapeak.services.MessagingService;
 import com.google.firebase.auth.FirebaseAuth;
 
+import java.io.InputStream;
+
 
 public class SettingsActivity extends AppCompatActivity {
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        getSupportFragmentManager().beginTransaction().replace(android.R.id.content, new GeneralPreferenceFragment()).commit();
 
-    /**
-     * A preference value change listener that updates the preference's summary
-     * to reflect its new value.
-     */
-    private static Preference.OnPreferenceChangeListener sBindPreferenceSummaryToValueListener = new Preference.OnPreferenceChangeListener() {
+        ActionBar actionBar = getSupportActionBar();
+        actionBar.setDisplayHomeAsUpEnabled(true);
+    }
+
+    public static class GeneralPreferenceFragment extends PreferenceFragmentCompat {
+        Preference name, pic;
+
         @Override
-        public boolean onPreferenceChange(final Preference preference, Object value) {
-            String stringValue = value.toString();
-            preference.setSummary(stringValue);
+        public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
+            setPreferencesFromResource(R.xml.pref_general, rootKey);
+            setHasOptionsMenu(true);
 
-            if (preference instanceof ListPreference) {
-                int i = ((ListPreference)preference).findIndexOfValue(stringValue);
-                CharSequence[] entries = ((ListPreference)preference).getEntries();
-                preference.setSummary(entries[i]);
-            } else if (preference.getKey().equals("name")) {
-                if (!stringValue.equals(PreferenceManager.getDefaultSharedPreferences(preference.getContext()).getString("name", null))) {
-                    Console.reloadName(preference.getContext(), stringValue, new Console.OnSuccess() {
+            String myPhone = FirebaseAuth.getInstance().getCurrentUser().getPhoneNumber();
+
+            name = (Preference) findPreference("name");
+            name.setDefaultValue(FirebaseAuth.getInstance().getCurrentUser().getPhotoUrl().getScheme());
+            name.setSummary(FirebaseAuth.getInstance().getCurrentUser().getPhotoUrl().getScheme());
+            name.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                @Override
+                public boolean onPreferenceChange(Preference preference, Object newValue) {
+                    Console.reloadName(preference.getContext(), newValue.toString(), new Console.OnSuccess() {
                         @Override
                         public void successful() {
                             Toast.makeText(preference.getContext(), "Name changed!", Toast.LENGTH_SHORT).show();
                             Console.sendToAll(preference.getContext(), MessagingService.SERVICE_NAME_CH, MessagingService.TYPE_FIELD_SERVICE);
                         }
                     });
+                    return true;
                 }
-            }
-            return true;
+            });
+
+            pic = (Preference) findPreference("pic");
+            pic.setIcon(R.drawable.common_google_signin_btn_icon_dark);
+            pic.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                @Override
+                public boolean onPreferenceClick(Preference preference) {
+                    Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+                    intent.addCategory(Intent.CATEGORY_OPENABLE);
+                    intent.setType("image/*");
+                    startActivityForResult(intent, 1);
+                    return true;
+                }
+            });
         }
-    };
 
-    /**
-     * Binds a preference's summary to its value. More specifically, when the
-     * preference's value is changed, its summary (line of text below the
-     * preference title) is updated to reflect the value. The summary is also
-     * immediately updated upon calling this method. The exact display format is
-     * dependent on the type of preference.
-     *
-     * @see #sBindPreferenceSummaryToValueListener
-     */
-    private static void bindPreferenceSummaryToValue(Preference preference) {
-        // Set the listener to watch for value changes.
-        preference.setOnPreferenceChangeListener(sBindPreferenceSummaryToValueListener);
+        @Override
+        public void onActivityResult(int requestCode, int resultCode, Intent imageReturnedIntent) {
+            super.onActivityResult(requestCode, resultCode, imageReturnedIntent);
+            switch(requestCode) {
+                case 1:
+                    if(resultCode == RESULT_OK){
+                        try {
+                            Uri selectedImage = imageReturnedIntent.getData();
+                            InputStream inputStream = getActivity().getContentResolver().openInputStream(selectedImage);
+                            Drawable pic = Drawable.createFromStream(inputStream, selectedImage.toString());
+                            inputStream.close();
+                            this.pic.setIcon(pic);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
 
-        // Trigger the listener immediately with the preference's
-        // current value.
-        sBindPreferenceSummaryToValueListener.onPreferenceChange(preference,
-                PreferenceManager
-                        .getDefaultSharedPreferences(preference.getContext())
-                        .getString(preference.getKey(), ""));
+                    break;
+            }
+        }
     }
-
-
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        getFragmentManager().beginTransaction().replace(android.R.id.content, new GeneralPreferenceFragment()).commit();
-
-        ActionBar actionBar = getSupportActionBar();
-        actionBar.setDisplayHomeAsUpEnabled(true);
-    }
-
-
-
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-    public static class GeneralPreferenceFragment extends PreferenceFragment {
-        @Override
-        public void onCreate(Bundle savedInstanceState) {
-            super.onCreate(savedInstanceState);
-            addPreferencesFromResource(R.xml.pref_general);
-            setHasOptionsMenu(true);
-
-            String myPhone = FirebaseAuth.getInstance().getCurrentUser().getPhoneNumber();
-            Log.e("TAG", "onCreate: " + myPhone);
-            EditTextPreference name = (EditTextPreference) findPreference("name");
-            name.setDefaultValue(myPhone);
-
-            bindPreferenceSummaryToValue(findPreference("name"));
-            bindPreferenceSummaryToValue(findPreference("sync"));
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            this.finish();
         }
-
-        @Override
-        public boolean onOptionsItemSelected(MenuItem item) {
-            if (item.getItemId() == android.R.id.home) {
-                GeneralPreferenceFragment.this.getActivity().finish();
-            }
-            return true;
-        }
+        return true;
     }
 }

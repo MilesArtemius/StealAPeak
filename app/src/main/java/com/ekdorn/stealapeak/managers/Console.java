@@ -3,14 +3,12 @@ package com.ekdorn.stealapeak.managers;
 import android.content.Context;
 import android.net.Uri;
 import android.preference.PreferenceManager;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 import android.util.Log;
 import android.widget.Toast;
 
 import com.ekdorn.stealapeak.database.Contact;
 import com.ekdorn.stealapeak.database.AppDatabase;
-import com.ekdorn.stealapeak.database.Message;
-import com.ekdorn.stealapeak.parts.LoginActivity;
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -120,6 +118,8 @@ public class Console {
         public void successful();
     }
 
+
+
     private static final String FUNC_SM_NAME = "sendMessage";
     private static final String PHONE_FIELD  = "phone";
     private static final String TEXT_FIELD   = "text";
@@ -189,9 +189,11 @@ public class Console {
         });
     }
 
-
-
     public interface OnLoaded {
         void onGot(Contact contact, boolean successful);
     }
+
+
+
+
 }

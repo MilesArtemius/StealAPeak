@@ -3,27 +3,28 @@ package com.ekdorn.stealapeak;
 import android.content.Intent;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.annotation.NonNull;
-import android.support.v4.app.FragmentManager;
+import androidx.annotation.NonNull;
+import androidx.fragment.app.FragmentManager;
+
 import android.util.Log;
 import android.view.View;
-import android.support.design.widget.NavigationView;
-import android.support.v4.view.GravityCompat;
-import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBarDrawerToggle;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
+
+import com.ekdorn.stealapeak.managers.CryptoManager;
+import com.ekdorn.stealapeak.managers.PrefManager;
+import com.google.android.material.navigation.NavigationView;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Switch;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.ekdorn.stealapeak.database.AppDatabase;
 import com.ekdorn.stealapeak.managers.Console;
 import com.ekdorn.stealapeak.managers.ContactsManager;
-import com.ekdorn.stealapeak.managers.CryptoManager;
-import com.ekdorn.stealapeak.managers.PrefManager;
 import com.ekdorn.stealapeak.parts.LoginActivity;
 import com.ekdorn.stealapeak.parts.SettingsActivity;
 import com.ekdorn.stealapeak.parts.UserSearchFragment;
@@ -37,6 +38,8 @@ import com.google.firebase.iid.InstanceIdResult;
 import java.lang.ref.WeakReference;
 
 public class StealAPeak extends AppCompatActivity {
+    NavigationView navigationView;
+
     private static final int loginActivity = 1;
 
     @Override
@@ -49,6 +52,16 @@ public class StealAPeak extends AppCompatActivity {
         } else {
             postCreate();
         }
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        View hView =  navigationView.getHeaderView(0);
+        TextView nav_name = (TextView)hView.findViewById(R.id.nameView);
+        nav_name.setText(FirebaseAuth.getInstance().getCurrentUser().getPhotoUrl().getScheme());
+        TextView nav_phone = (TextView)hView.findViewById(R.id.phoneView);
+        nav_phone.setText(FirebaseAuth.getInstance().getCurrentUser().getPhoneNumber());
     }
 
     @Override
@@ -80,12 +93,21 @@ public class StealAPeak extends AppCompatActivity {
         drawer.addDrawerListener(toggle);
         toggle.syncState();
 
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
-        View hView =  navigationView.getHeaderView(0);
+        Log.e("TAG", "postCreate: USER:" +
+                "\nNAME: " + FirebaseAuth.getInstance().getCurrentUser().getDisplayName() +
+                "\nEMAIL: " + FirebaseAuth.getInstance().getCurrentUser().getEmail() +
+                "\nPHONE: " + FirebaseAuth.getInstance().getCurrentUser().getPhoneNumber() +
+                "\nPROVIDER: " + FirebaseAuth.getInstance().getCurrentUser().getProviderId() +
+                "\nUID: " + FirebaseAuth.getInstance().getCurrentUser().getUid() +
+                "\nPHOTO: " + FirebaseAuth.getInstance().getCurrentUser().getPhotoUrl() +
+                "\nMETA: " + FirebaseAuth.getInstance().getCurrentUser().getMetadata());
+        Log.e("TAG", "postCreate: " + CryptoManager.getPublicKey(this));
+        navigationView = (NavigationView) findViewById(R.id.nav_view);
+        /*View hView =  navigationView.getHeaderView(0);
         TextView nav_name = (TextView)hView.findViewById(R.id.nameView);
         nav_name.setText(FirebaseAuth.getInstance().getCurrentUser().getPhotoUrl().getScheme());
         TextView nav_phone = (TextView)hView.findViewById(R.id.phoneView);
-        nav_phone.setText(FirebaseAuth.getInstance().getCurrentUser().getPhoneNumber());
+        nav_phone.setText(FirebaseAuth.getInstance().getCurrentUser().getPhoneNumber());*/
 
         ContactsManager.create(navigationView.getMenu(), new ContactsManager.OnSelected() {
             @Override
@@ -139,7 +161,6 @@ public class StealAPeak extends AppCompatActivity {
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
         switch (id) {
             case R.id.action_settings:
                 Intent intentDialog = new Intent(StealAPeak.this, SettingsActivity.class);

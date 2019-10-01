@@ -1,10 +1,10 @@
 package com.ekdorn.stealapeak.managers;
 
-import android.arch.lifecycle.Observer;
-import android.arch.lifecycle.ViewModelProviders;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProviders;
 import android.content.Context;
-import android.support.annotation.NonNull;
-import android.support.design.widget.NavigationView;
+import androidx.annotation.NonNull;
+import com.google.android.material.navigation.NavigationView;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
