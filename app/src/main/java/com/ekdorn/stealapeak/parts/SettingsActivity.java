@@ -15,7 +15,6 @@ import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.ekdorn.stealapeak.R;
-import com.ekdorn.stealapeak.StealAPeak;
 import com.ekdorn.stealapeak.managers.Console;
 import com.ekdorn.stealapeak.services.MessagingService;
 import com.google.firebase.auth.FirebaseAuth;
@@ -77,21 +76,25 @@ public class SettingsActivity extends AppCompatActivity {
         @Override
         public void onActivityResult(int requestCode, int resultCode, Intent imageReturnedIntent) {
             super.onActivityResult(requestCode, resultCode, imageReturnedIntent);
-            switch(requestCode) {
-                case 1:
-                    if(resultCode == RESULT_OK){
-                        try {
-                            Uri selectedImage = imageReturnedIntent.getData();
-                            InputStream inputStream = getActivity().getContentResolver().openInputStream(selectedImage);
-                            Drawable pic = Drawable.createFromStream(inputStream, selectedImage.toString());
-                            inputStream.close();
-                            this.pic.setIcon(pic);
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                    }
 
-                    break;
+            if(resultCode == RESULT_OK){
+                try {
+                    Uri selectedImage = imageReturnedIntent.getData();
+                    InputStream inputStream = getActivity().getContentResolver().openInputStream(selectedImage);
+                    Drawable pic = Drawable.createFromStream(inputStream, selectedImage.toString());
+                    inputStream.close();
+
+                    Console.reloadPic(this.getContext(), pic, new Console.OnSuccess() {
+                        @Override
+                        public void successful() {
+                            Toast.makeText(GeneralPreferenceFragment.this.getContext(), "Profile pic changed!", Toast.LENGTH_SHORT).show();
+                            Console.sendToAll(GeneralPreferenceFragment.this.getContext(), MessagingService.SERVICE_IMAGE_CH, MessagingService.TYPE_FIELD_SERVICE);
+                            GeneralPreferenceFragment.this.pic.setIcon(pic);
+                        }
+                    });
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         }
     }

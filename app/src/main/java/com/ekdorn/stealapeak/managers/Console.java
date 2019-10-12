@@ -1,6 +1,7 @@
 package com.ekdorn.stealapeak.managers;
 
 import android.content.Context;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.preference.PreferenceManager;
 import androidx.annotation.NonNull;
@@ -19,6 +20,7 @@ import com.google.firebase.functions.HttpsCallableResult;
 
 import org.jetbrains.annotations.Nullable;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -112,6 +114,11 @@ public class Console {
                         if (post != null) post.successful();
                     }
                 });
+    }
+
+    public static void reloadPic(Context context, final Drawable pic, @Nullable final OnSuccess post) {
+        FileManager.setProfilePic(PreferenceManager.getDefaultSharedPreferences(context).getString("name", ""), pic, context);
+        if (post != null) post.successful();
     }
 
     public interface OnSuccess {
